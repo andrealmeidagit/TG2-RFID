@@ -30,7 +30,7 @@
 
 5. CONFIDENTIALITY. In order to protect the trade secrets and proprietary know-how contained in the Software Tools, Licensee will not decompile, disassemble, or reverse engineer, or otherwise attempt to gain access to the source code or algorithms of the Software Tools (unless Impinj provides the Software Tools in source code format). Licensee will maintain the confidentiality of and not disclose to any third party: (a) all non-public information disclosed by Impinj to Licensee under this Agreement and (b) all performance data and all other information obtained through the Software Tools.
 
-6. WARRANTY DISCLAIMER. LICENSEE ACKNOWLEDGES THAT IMPINJ PROVIDES THE SOFTWARE TOOLS FREE OF CHARGE AND ONLY FOR THE PURPOSE. ACCORDINGLY, THE SOFTWARE TOOLS ARE PROVIDED “AS IS” WITHOUT QUALITY CHECK, AND IMPINJ DOES NOT WARRANT THAT THE SOFTWARE TOOLS WILL OPERATE WITHOUT ERROR OR INTERRUPTION OR MEET ANY PERFORMANCE STANDARD OR OTHER EXPECTATION. IMPINJ EXPRESSLY DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING THE IMPLIED WARRANTIES OF MERCHANTABILITY, NONINFRINGEMENT, QUALITY, ACCURACY, AND FITNESS FOR A PARTICULAR PURPOSE. IMPINJ IS NOT OBLIGATED IN ANY WAY TO PROVIDE SUPPORT OR OTHER MAINTENANCE WITH RESPECT TO THE SOFTWARE TOOLS.
+6. WARRANTY DISCLAIMER. LICENSEE AC KNOWLEDGES THAT IMPINJ PROVIDES THE SOFTWARE TOOLS FREE OF CHARGE AND ONLY FOR THE PURPOSE. ACCORDINGLY, THE SOFTWARE TOOLS ARE PROVIDED “AS IS” WITHOUT QUALITY CHECK, AND IMPINJ DOES NOT WARRANT THAT THE SOFTWARE TOOLS WILL OPERATE WITHOUT ERROR OR INTERRUPTION OR MEET ANY PERFORMANCE STANDARD OR OTHER EXPECTATION. IMPINJ EXPRESSLY DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING THE IMPLIED WARRANTIES OF MERCHANTABILITY, NONINFRINGEMENT, QUALITY, ACCURACY, AND FITNESS FOR A PARTICULAR PURPOSE. IMPINJ IS NOT OBLIGATED IN ANY WAY TO PROVIDE SUPPORT OR OTHER MAINTENANCE WITH RESPECT TO THE SOFTWARE TOOLS.
 
 7. LIMITATION OF LIABILITY. THE TOTAL LIABILITY OF IMPINJ ARISING OUT OF OR RELATED TO THE SOFTWARE TOOLS WILL NOT EXCEED THE TOTAL AMOUNT PAID BY LICENSEE TO IMPINJ PURSUANT TO THIS AGREEMENT. IN NO EVENT WILL IMPINJ HAVE LIABILITY FOR ANY INDIRECT, INCIDENTAL, SPECIAL, OR CONSEQUENTIAL DAMAGES, EVEN IF ADVISED OF THE POSSIBILITY OF THESE DAMAGES. THESE LIMITATIONS WILL APPLY NOTWITHSTANDING ANY FAILURE OF ESSENTIAL PURPOSE OF ANY LIMITED REMEDY IN THIS AGREEMENT.
 
@@ -40,7 +40,6 @@
 
 10. MISCELLANEOUS. This Agreement will be governed by the laws of the State of Washington, U.S.A without reference to conflict of law principles. All disputes arising out of or related to it, will be subject to the exclusive jurisdiction of the state and federal courts located in King County, Washington, and the parties agree and submit to the personal and exclusive jurisdiction and venue of these courts. Licensee will not assign this Agreement, directly or indirectly, by operation of law or otherwise, without the prior written consent of Impinj. This Agreement (and any applicable nondisclosure agreement) is the entire agreement between the parties relating to the Software Tools. No waiver or modification of this Agreement will be valid unless contained in a writing signed by each party.
 */
-
 
 using System;
 using Impinj.OctaneSdk;
@@ -57,14 +56,32 @@ namespace TG2_RFID
         public static volatile int reader_3_count = 0;
         public static volatile Hashtable SalaReuniao = new Hashtable();
         public static volatile Hashtable CorredorMesas = new Hashtable();
+        public static volatile Hashtable Cadastro = new Hashtable();
     }
     class Program
     {
         // Create a collection to hold all the ImpinjReader instances.
         static List<ImpinjReader> readers = new List<ImpinjReader>();
 
-        static void Main(string[] args)
+        static void Main(/*string[] args*/)
         {
+            //Console.WriteLine("Test Step");
+            //Curve cc = new Curve();
+            //Curve.populateCurveTest(cc);
+            //cc.printCurveInConsole();
+            //Console.WriteLine("{0}", cc.getMeanY());
+            //Console.WriteLine("{0}", cc.getMedianY());
+            //var maxPoint = cc.getCurveMaxPoint();
+            //var minPoint = cc.getCurveMinPoint();
+            //Console.WriteLine("{0}, {1}", maxPoint.Item1, maxPoint.Item2);
+            //Console.WriteLine("{0}, {1}", minPoint.Item1, minPoint.Item2);
+            //Console.WriteLine("{0}, {1}", cc.getCurveMinX(), cc.getCurveMaxX());
+
+            //Console.WriteLine("End Test Step");
+            //return;
+
+
+            Project.PopulateProjectData();
             try
             {
                 // Connect to the reader.
@@ -77,17 +94,20 @@ namespace TG2_RFID
                 }
                 string hostname1 = args[0];
                 string hostname2 = args[1];*/
-                string hostname1 = "speedwayr-10-9f-bb.local";
+                //               string hostname1 = "speedwayr-10-9f-bb.local";
                 string hostname2 = "speedwayr-10-9f-c8.local";
-                string hostname3 = "speedwayr-10-9f-3f.local";
+                //               string hostname3 = "speedwayr-10-9f-3f.local";
                 // Create two reader instances and add them to the List of readers.
-                readers.Add(new ImpinjReader(hostname1, "Reader #1"));
+                //                readers.Add(new ImpinjReader(hostname1, "Reader #1"));
                 readers.Add(new ImpinjReader(hostname2, "Reader #2"));
-                readers.Add(new ImpinjReader(hostname3, "Reader #3"));
+                //                readers.Add(new ImpinjReader(hostname3, "Reader #3"));
 
                 // Loop through the List of readers to configure and start them.
                 foreach (ImpinjReader reader in readers)
                 {
+                    Project.RegisterNewAmbient(new Antenna(reader, 1), new Ambient("Room1"));
+                    Project.RegisterNewAmbient(new Antenna(reader, 2), new Ambient("Room2"));
+
                     // Connect to the reader
                     reader.Connect();
 
@@ -104,14 +124,33 @@ namespace TG2_RFID
                     settings.Report.IncludeDopplerFrequency = true;
                     settings.Report.IncludePeakRssi = true;
 
+                    //Settings de antena
+                    settings.Antennas.DisableAll();
+                    settings.Antennas.GetAntenna(1).IsEnabled = true;
+                    settings.Antennas.GetAntenna(2).IsEnabled = true;
+                    // Set all the antennas to the max transmit power and receive sensitivity
+                    settings.Antennas.TxPowerMax = true;
+                    settings.Antennas.RxSensitivityMax = true;
+                    // Or set all antennas to a specific value in dBm
+                    //settings.Antennas.TxPowerInDbm = 28.0;
+                    //settings.Antennas.RxSensitivityInDbm = -70.0;
+                    // Or set each antenna individually
+                    //settings.Antennas.GetAntenna(1).MaxTxPower = true;
+                    //settings.Antennas.GetAntenna(1).MaxRxSensitivity = true;
+                    //settings.Antennas.GetAntenna(2).TxPowerInDbm = 30.0;
+                    //settings.Antennas.GetAntenna(2).RxSensitivityInDbm = -70.0;
+                    // ...
+
                     // Send a tag report every time the reader stops (period is over).
-                    settings.Report.Mode = ReportMode.BatchAfterStop;
+                    settings.Report.Mode = ReportMode.Individual;// BatchAfterStop;
 
                     // Reading tags for 1 seconds every 0.25 second
-                    settings.AutoStart.Mode = AutoStartMode.Periodic;
-                    settings.AutoStart.PeriodInMs = 500;
-                    settings.AutoStop.Mode = AutoStopMode.Duration;
-                    settings.AutoStop.DurationInMs = 500;
+                    //settings.AutoStart.Mode = AutoStartMode.Periodic;
+                    //settings.AutoStart.PeriodInMs = 500;
+                    //settings.AutoStop.Mode = AutoStopMode.Duration;
+                    //settings.AutoStop.DurationInMs = 500;
+
+
 
 
                     // Apply the newly modified settings.
@@ -120,7 +159,7 @@ namespace TG2_RFID
                     // Assign the TagsReported event handler.
                     // This specifies which method to call
                     // when tags reports are available.
-                    reader.TagsReported += captura_tags;
+                    reader.TagsReported += Captura_tags;
 
                     // Start reading.
                     reader.Start();
@@ -151,6 +190,9 @@ namespace TG2_RFID
                 // Handle other .NET errors.
                 Console.WriteLine("Exception : {0}", e.Message);
             }
+            // Wait for the user to press enter.
+            Console.WriteLine("Press enter to exit.");
+            Console.ReadKey();
         }
 
         /* private static void OnTagsReported(ImpinjReader sender, TagReport report)
@@ -175,51 +217,48 @@ namespace TG2_RFID
              }
              //Console.WriteLine("\n");
          }*/
-        private static void captura_tags(ImpinjReader sender, TagReport report)
+        private static void Captura_tags(ImpinjReader sender, TagReport report)
         {
             foreach (Tag tag in report)
             {
-                if (tag.Epc.ToString() == /*"AD08 3003 4604 3152 2C00 0086"*/"E200 001B 2609 0147 0510 7BBD" ||
-                    tag.Epc.ToString() == "E200 001B 2609 0147 0460 7BA5" ||
-                    tag.Epc.ToString() == "E200 001B 2609 0147 0520 7BB1" ||
-                    tag.Epc.ToString() == "E200 001B 2609 0147 0450 7B99" ||
-                    tag.Epc.ToString() == "E200 001B 2609 0147 0380 7B85" ||
-                    tag.Epc.ToString() == "E200 001B 2609 0147 0910 7C5D" ||
-                    tag.Epc.ToString() == "E200 001B 2609 0147 0850 7C39" ||
-                    tag.Epc.ToString() == "E200 001B 2609 0147 0840 7C31" ||
-                    tag.Epc.ToString() == "E200 001B 2609 0147 0710 7C0D" ||
-                    tag.Epc.ToString() == "E200 001B 2609 0147 0660 7BF5" ||
-                    tag.Epc.ToString() == "E200 001B 2609 0147 0900 7C55" ||
-                    tag.Epc.ToString() == "E200 001B 2609 0147 0390 7B8D" ||
-                    tag.Epc.ToString() == "E200 001B 2609 0147 0780 7C25" ||
-                    tag.Epc.ToString() == "E200 001B 2609 0147 0720 7C01" ||
-                    tag.Epc.ToString() == "E200 001B 2609 0147 0600 7BD1" ||
-                    tag.Epc.ToString() == "E200 001B 2609 0147 1100 7CA5" ||
-                    tag.Epc.ToString() == "E200 001B 2609 0147 0650 7BE9" ||
-                    tag.Epc.ToString() == "E200 001B 2609 0147 0790 7C2D" ||
-                    tag.Epc.ToString() == "E200 001B 2609 0147 0590 7BDD" ||
-                    tag.Epc.ToString() == "E200 001B 2609 0147 1040 7C81")
+                /* if (tag.Epc.ToString() == "E200 001B 2609 0147 0510 7BBD" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0460 7BA5" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0520 7BB1" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0450 7B99" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0380 7B85" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0910 7C5D" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0850 7C39" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0840 7C31" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0710 7C0D" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0660 7BF5" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0900 7C55" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0390 7B8D" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0780 7C25" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0720 7C01" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0600 7BD1" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 1100 7CA5" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0650 7BE9" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0790 7C2D" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0590 7BDD" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 1040 7C81")*/
+                if (GlobalDataReader1.Cadastro.ContainsKey(tag.Epc.ToString()))
                 {
-                    if (tag.PeakRssiInDbm > GlobalDataReader1.RSSILowPassFilter)
+                    string trimmedEPC = tag.Epc.ToString().Replace(" ", string.Empty);
+                    TimeSpan deltaT = new TimeSpan(tag.LastSeenTime.LocalDateTime.Ticks - tag.FirstSeenTime.LocalDateTime.Ticks);
+
+                    Console.WriteLine("Antena: {0}, EPC: {1}, TAGSC: {2}, RSSI: {3}, LastSeen: {4}", tag.AntennaPortNumber, trimmedEPC, tag.TagSeenCount, tag.PeakRssiInDbm, tag.LastSeenTime);
+
+                    if (GlobalDataReader1.SalaReuniao.ContainsKey(tag.Epc.ToString()))
                     {
-                        string trimmedEPC = tag.Epc.ToString().Replace(" ", string.Empty);
-                        TimeSpan deltaT = new TimeSpan(tag.LastSeenTime.LocalDateTime.Ticks - tag.FirstSeenTime.LocalDateTime.Ticks);
-
-                        //                  Console.WriteLine("Name: {0}, EPC: {1}, TAGSC: {2}, RSSI: {3}", sender.Name, trimmedEPC, tag.TagSeenCount, tag.PeakRssiInDbm);
-
-                        if (GlobalDataReader1.SalaReuniao.ContainsValue(trimmedEPC))
-                        {
-                            SegundaLeituraSalaReuniao(sender.Name, trimmedEPC, tag.PeakRssiInDbm);
-                        }
-                        else if (GlobalDataReader1.CorredorMesas.ContainsValue(trimmedEPC))
-                        {
-                            SegundaLeituraCorredorMesas(sender.Name, trimmedEPC, tag.PeakRssiInDbm);
-                        }
-                        else
-                        {
-                            PrimeiraLeitura(sender.Name, trimmedEPC, tag.PeakRssiInDbm);
-                        }
-
+                        SegundaLeituraSalaReuniao(sender.Name, tag.Epc.ToString(), tag.PeakRssiInDbm);
+                    }
+                    else if (GlobalDataReader1.CorredorMesas.ContainsKey(tag.Epc.ToString()))
+                    {
+                        SegundaLeituraCorredorMesas(sender.Name, tag.Epc.ToString(), tag.PeakRssiInDbm);
+                    }
+                    else
+                    {
+                        PrimeiraLeitura(sender.Name, tag.Epc.ToString(), tag.PeakRssiInDbm);
                     }
                 }
             }
@@ -237,7 +276,8 @@ namespace TG2_RFID
             Console.WriteLine("The day of week: {0}", now.DayOfWeek);
             Console.WriteLine("Kind: {0}\n\n", now.Kind);*/
         }
-        private static void SegundaLeituraSalaReuniao(string name, string trimmedEPC, double PeakRssi)
+
+        private static void SegundaLeituraSalaReuniao(string name, string EPC, double PeakRssi)
         {
             if (name == "Reader #1")
             {
@@ -245,19 +285,12 @@ namespace TG2_RFID
             }
             else if (name == "Reader #3")
             {
-                //int key_number = (GlobalDataReader1.CorredorMesas.GetKey(trimmedEPC)) ;
-
-
-                /*
-                 * fazer hash de cadastro
-                 * tornar EPC a key
-                 * registrar peak RSSI como data, ou time-last-read
-                 */
+                // GlobalDataReader1.
 
             }
             else if (name == "Reader #2")
             {
-
+                GlobalDataReader1.SalaReuniao.Remove(EPC);
             }
             else
             {
@@ -266,11 +299,13 @@ namespace TG2_RFID
             }
 
         }
-        private static void SegundaLeituraCorredorMesas(string name, string trimmedEPC, double PeakRssi)
+
+        private static void SegundaLeituraCorredorMesas(string name, string EPC, double PeakRssi)
         {
 
         }
-        private static void PrimeiraLeitura(string name, string trimmedEPC, double PeakRssi)
+
+        private static void PrimeiraLeitura(string name, string EPC, double PeakRssi)
         {
 
             if (name == "Reader #2")
@@ -279,20 +314,20 @@ namespace TG2_RFID
             }
             else if (name == "Reader #1")
             {
-                GlobalDataReader1.SalaReuniao.Add(GlobalDataReader1.SalaReuniao.Count + 1, trimmedEPC);
+                GlobalDataReader1.SalaReuniao.Add(EPC, PeakRssi);
                 //       Console.WriteLine("tag count number READER#1 = {0}\n\n", GlobalDataReader1.SalaReuniao.Count);
                 ICollection key = GlobalDataReader1.SalaReuniao.Keys;
 
-                foreach (Int32 k in key)
-                {
-                    Console.WriteLine(k + ": " + GlobalDataReader1.SalaReuniao[k]);
-                }
-                Console.WriteLine("\n\n");
+                /* foreach (Int32 k in key)
+                 {
+                     Console.WriteLine(k + ": " + GlobalDataReader1.SalaReuniao[k]);
+                 }
+                 Console.WriteLine("\n\n");*/
                 return;
             }
             else if (name == "Reader #3")
             {
-                GlobalDataReader1.CorredorMesas.Add(GlobalDataReader1.CorredorMesas.Count + 1, trimmedEPC);
+                GlobalDataReader1.CorredorMesas.Add(EPC, PeakRssi);
                 //       Console.WriteLine("tag count number READER#3 = {0}\n\n", GlobalDataReader1.CorredorMesas.Count);
                 ICollection key = GlobalDataReader1.CorredorMesas.Keys;
 
@@ -308,11 +343,6 @@ namespace TG2_RFID
                 Console.Error.Write("[ERRO!] Leitora não cadastrada!");
                 Environment.Exit(1);
             }
-
-
-
-
         }
-
     }
 }

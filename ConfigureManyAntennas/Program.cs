@@ -19,7 +19,7 @@ namespace OctaneSdkExamples
         {
             try
             {
-                // This example shows some of the options for configuring 
+                /*// This example shows some of the options for configuring 
                 // a reader with many antennas (xArray, Antenna Hub)
 
                 // Connect to the reader.
@@ -29,8 +29,8 @@ namespace OctaneSdkExamples
                 {
                     Console.WriteLine("Error: No hostname specified.  Pass in the reader hostname as a command line argument when running the Sdk Example.");
                     return;
-                }
-                string hostname = args[0];
+                }*/
+                string hostname = "speedwayr-10-9f-c8.local";//args[0];
                 reader.Connect(hostname);
 
                 // Assign the TagsReported event handler.
@@ -49,22 +49,23 @@ namespace OctaneSdkExamples
 
                 // Start by disabling all of the antennas
                 settings.Antennas.DisableAll();
+                //settings.Antennas.EnableAll();
 
                 // Enable antennas by specifying an array of antenna IDs
-                // settings.Antennas.EnableById(new ushort[] { 1, 3, 5, 7, 9, 15, 22, 27, 28, 30, 33, 34, 39, 40, 41, 50 });
+                // settings.Antennas.EnableById(new ushort[] { 1, 23, 5, 7, 9, 15, 22, 27, 28, 30, 33, 34, 39, 40, 41, 50 });
 
                 // For spatial readers, you can specify an optimized antenna list
-                List<AntennaConfig> listAntennaConfig = settings.Antennas.AntennaConfigs;
-                listAntennaConfig.Clear();
+                //List<AntennaConfig> listAntennaConfig = settings.Antennas.AntennaConfigs;
+                //listAntennaConfig.Clear();
 
-                foreach (ushort antenna in AntennaUtilities.GetOptimizedAntennaList(ReaderModel.XArray))
-                {
-                     listAntennaConfig.Add(new AntennaConfig(antenna));
-                }
+                //foreach (ushort antenna in AntennaUtilities.GetOptimizedAntennaList(ReaderModel.XArray))
+                //{
+                //     listAntennaConfig.Add(new AntennaConfig(antenna));
+                //}
 
                 // Or set each antenna individually
-                //settings.Antennas.GetAntenna(1).IsEnabled = true;
-                //settings.Antennas.GetAntenna(3).IsEnabled = true;
+                settings.Antennas.GetAntenna(1).IsEnabled = true;
+                settings.Antennas.GetAntenna(2).IsEnabled = true;
                 // ...
 
                 // Set all the antennas to the max transmit power and receive sensitivity

@@ -29,13 +29,12 @@ namespace OctaneSdkExamples
                 // Connect to the reader.
                 // Pass in a reader hostname or IP address as a 
                 // command line argument when running the example
-                if (args.Length != 1)
+                /*if (args.Length != 1)
                 {
-                    System.Diagnostics.Trace.
-                        WriteLine("Error: No hostname specified.  Pass in the reader hostname as a command line argument when running the Sdk Example.");
+                    Console.WriteLine("Error: No hostname specified.  Pass in the reader hostname as a command line argument when running the Sdk Example.");
                     return;
-                }
-                string hostname = args[0];
+                }*/
+                string hostname = "speedwayr-10-9f-c8.local";//args[0];
                 reader.Connect(hostname);
 
                 // Get the default settings

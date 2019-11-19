@@ -14,19 +14,19 @@ namespace OctaneSdkExamples
         // Create an instance of the ImpinjReader class.
         static ImpinjReader reader = new ImpinjReader();
 
-        static void Main(string[] args)
+        static void Main(/*string[] args*/)
         {
             try
             {
                 // Connect to the reader.
                 // Pass in a reader hostname or IP address as a 
                 // command line argument when running the example
-                if (args.Length != 1)
+                /*if (args.Length != 1)
                 {
                     Console.WriteLine("Error: No hostname specified.  Pass in the reader hostname as a command line argument when running the Sdk Example.");
                     return;
-                }
-                string hostname = args[0];
+                }*/
+                string hostname = "speedwayr-10-9f-c8.local";//args[0];
                 reader.Connect(hostname);
 
                 // Get the default settings
@@ -38,6 +38,8 @@ namespace OctaneSdkExamples
                 // Tell the reader to include the
                 // RF doppler frequency in all tag reports. 
                 settings.Report.IncludeDopplerFrequency = true;
+                settings.Report.IncludePeakRssi = true;
+                settings.Report.IncludePhaseAngle = true;
 
                 // Use antenna #1
                 settings.Antennas.DisableAll();
@@ -87,8 +89,26 @@ namespace OctaneSdkExamples
             // and print the data.
             foreach (Tag tag in report)
             {
-                Console.WriteLine("EPC : {0} Doppler Frequency (Hz) : {1}",
-                                    tag.Epc, tag.RfDopplerFrequency.ToString("0.00"));
+                if (tag.Epc.ToString() == "E200 001B 2609 0147 0510 7BBD")
+                {
+                    // Console.WriteLine("RSSI = {0} - - - Fase = {1}", tag.PeakRssiInDbm.ToString("0.00"), tag.PhaseAngleInRadians.ToString("0.00")) ;
+                    if (tag.PeakRssiInDbm > -90)
+                    {
+                        if (Math.Abs(tag.RfDopplerFrequency) > 1.5)
+                        {
+                            if (tag.RfDopplerFrequency > 0)
+                            {
+                                Console.WriteLine("APROXIMANDO!!! -> Doppler Frequency (Hz) : {0} -- RSSI (dB) {1}",
+                                    tag.RfDopplerFrequency.ToString("0.00"), tag.PeakRssiInDbm.ToString("0.00"));
+                            }
+                            else
+                            {
+                                Console.WriteLine("A F A S T A N D O!!! -> Doppler Frequency (Hz) : {0} - RSSI (dB): {1}",
+                                    tag.RfDopplerFrequency.ToString("0.00"), tag.PeakRssiInDbm.ToString("0.00"));
+                            }
+                        }
+                    }
+                }
             }
         }
     }

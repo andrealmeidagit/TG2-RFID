@@ -176,6 +176,20 @@ namespace TG2_RFID
             }
 
             double readingTime = (double)(lastSeenTime.Date.Millisecond) - (double)(firstSeenTime.Date.Millisecond);
+
+            Curve powerCurve = new Curve();
+            // TODO
+            //curvesPowerReadingsDictionary.TryGetValue(Ante, out cardholder);
+            //cardholder.readingCardholderTag(tag);
+            double timeProcessed = 0;
+            powerCurve.addPoint(timeProcessed, tag.PeakRssiInDbm);
+
+            Curve dopplerCurve = new Curve();
+            // TODO
+            //curvesPowerReadingsDictionary.TryGetValue(Ante, out cardholder);
+            //cardholder.readingCardholderTag(tag);
+            powerCurve.addPoint(timeProcessed, tag.RfDopplerFrequency);
+
             //tag.AntennaPortNumber;
             //tag.RfDopplerFrequency
             //curvesPowerReadingsDictionary.Add

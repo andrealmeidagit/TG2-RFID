@@ -83,9 +83,19 @@ namespace TG2_RFID
         /// <summary>
         /// TODO
         /// </summary>
-        public static void readingCardholderTag()
+        public static void readingCardholderTag(Tag tag)
         {
+            Cardholder cardholder = new Cardholder();
+            registeredPeople.TryGetValue(tag.Epc.ToString(), out cardholder);
 
+            cardholder.readingCardholderTag(tag);
+        }
+
+
+        public static void processCardholderData(Tag tag)
+        {
+            Cardholder cardholder = new Cardholder();
+            registeredPeople.TryGetValue(tag.Epc.ToString(), out cardholder);
         }
     }
 }

@@ -56,13 +56,13 @@ namespace TG2_RFID
          /// Holds a map of curves per antenna in which this cardholder was seen
          /// holding the history of RSSI power per time.
          /// </summary>
-        public Dictionary<Antenna, Curve> curvesPowerReadingsDictionary;
+        public Dictionary<Tuple<String, ushort>, Curve> curvesPowerReadingsDictionary;
 
         /// <summary>
         /// Holds a map of curves per antenna in which this cardholder was seen
         /// holding the history of doppler frequency per time.
         /// </summary>
-        public Dictionary<Antenna, Curve> curvesDoplerFrequencyReadingsDictionary;
+        public Dictionary<Tuple<String, ushort>, Curve> curvesDoplerFrequencyReadingsDictionary;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:TG2_RFID.Cardholder"/> class.
@@ -132,7 +132,7 @@ namespace TG2_RFID
         /// </summary>
         /// <returns>The power curve.</returns>
         /// <param name="antenna">Antenna.</param>
-        public Curve getPowerCurve(Antenna antenna)
+        public Curve getPowerCurve(Tuple<String, ushort> antenna)
         {
             Curve retCurve = new Curve();
             curvesPowerReadingsDictionary.TryGetValue(antenna, out retCurve);
@@ -144,7 +144,7 @@ namespace TG2_RFID
         /// </summary>
         /// <returns>The doppler effect curve.</returns>
         /// <param name="antenna">Antenna.</param>
-        public Curve getDopplerEffectCurve(Antenna antenna)
+        public Curve getDopplerEffectCurve(Tuple<String, ushort> antenna)
         {
             Curve retCurve = new Curve();
             curvesDoplerFrequencyReadingsDictionary.TryGetValue(antenna, out retCurve);
@@ -162,34 +162,43 @@ namespace TG2_RFID
 
         /// <summary>
         /// TODO
+        /// TODO Reset buffer at 4am due to overflow problem.
         /// </summary>
-        public void readingCardholderTag(Tag tag)
+        public void readingCardholderTag(Tag tag, String senderName)
         {
             lastSeenTag = tag;
-            lastSeenTime = tag.LastSeenTime.LocalDateTime.Date;
+            lastSeenTime = DateTime.Now;
             lastSeenRSSI = tag.PeakRssiInDbm;
 
             if (!wasInitialized)
             {
-                firstSeenTime = tag.FirstSeenTime.LocalDateTime.Date;
+                firstSeenTime = lastSeenTime;
                 wasInitialized = true;
             }
 
             double readingTime = (double)(lastSeenTime.Date.Millisecond) - (double)(firstSeenTime.Date.Millisecond);
 
+            Antenna seenAntenna = new Antenna();
+
+            var tupleAntenna = Tuple.Create<String, ushort>(senderName, tag.AntennaPortNumber);
+
+            if (!curvesPowerReadingsDictionary.ContainsKey(tupleAntenna))
+            {
+                curvesPowerReadingsDictionary.Add(tupleAntenna, new Curve());
+            }
             Curve powerCurve = new Curve();
-            // TODO
-            //curvesPowerReadingsDictionary.TryGetValue(Ante, out cardholder);
-            //cardholder.readingCardholderTag(tag);
-            double timeProcessed = 0;
-            powerCurve.addPoint(timeProcessed, tag.PeakRssiInDbm);
+            curvesPowerReadingsDictionary.TryGetValue(tupleAntenna, out powerCurve);
+            powerCurve.addPoint(readingTime, tag.PeakRssiInDbm);
 
+            if (!curvesPowerReadingsDictionary.ContainsKey(tupleAntenna))
+            {
+                curvesDoplerFrequencyReadingsDictionary.Add(tupleAntenna, new Curve());
+            }
             Curve dopplerCurve = new Curve();
-            // TODO
-            //curvesPowerReadingsDictionary.TryGetValue(Ante, out cardholder);
-            //cardholder.readingCardholderTag(tag);
-            powerCurve.addPoint(timeProcessed, tag.RfDopplerFrequency);
+            curvesDoplerFrequencyReadingsDictionary.TryGetValue(tupleAntenna, out dopplerCurve);
+            dopplerCurve.addPoint(readingTime, tag.RfDopplerFrequency);
 
+            int test = 0;
             //tag.AntennaPortNumber;
             //tag.RfDopplerFrequency
             //curvesPowerReadingsDictionary.Add

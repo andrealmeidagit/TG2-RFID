@@ -20,7 +20,7 @@ namespace TG2_RFID
         /// <summary>
         /// The map of registed ambients in the project.
         /// </summary>
-        protected static volatile Dictionary<Antenna, Ambient> registerAmbient = new Dictionary<Antenna, Ambient>();
+        protected static volatile Dictionary<Tuple<String, ushort>, Ambient> registerAmbient = new Dictionary<Tuple<String, ushort>, Ambient>();
 
         /// <summary>
         /// Registers a new cardholder given an tag epc.
@@ -38,9 +38,8 @@ namespace TG2_RFID
         /// </summary>
         /// <param name="antenna">Antenna.</param>
         /// <param name="ambient">Ambient.</param>
-        public static void RegisterNewAmbient(Antenna antenna, Ambient ambient)
+        public static void RegisterNewAmbient(Tuple<String, ushort> antenna, Ambient ambient)
         {
-            ambient.setAntenna(antenna);
             registerAmbient.Add(antenna, ambient);
         }
 
@@ -83,12 +82,12 @@ namespace TG2_RFID
         /// <summary>
         /// TODO
         /// </summary>
-        public static void readingCardholderTag(Tag tag)
+        public static void readingCardholderTag(Tag tag, String senderName)
         {
             Cardholder cardholder = new Cardholder();
             registeredPeople.TryGetValue(tag.Epc.ToString(), out cardholder);
 
-            cardholder.readingCardholderTag(tag);
+            cardholder.readingCardholderTag(tag, senderName);
         }
 
 

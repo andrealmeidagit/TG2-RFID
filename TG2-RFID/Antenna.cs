@@ -51,6 +51,12 @@ namespace TG2_RFID
             return srcAntennaPortNumber;
         }
 
+        public Antenna()
+        {
+            srcReader = null;
+            srcAntennaPortNumber = 255;
+        }
+
         /// <summary>
         /// Constructor given the antenna reader and antenna port name.
         /// </summary>

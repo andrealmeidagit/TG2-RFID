@@ -79,8 +79,7 @@ namespace TG2_RFID
 
             //Console.WriteLine("End Test Step");
             //return;
-
-
+                       
             Project.PopulateProjectData();
             try
             {
@@ -105,8 +104,8 @@ namespace TG2_RFID
                 // Loop through the List of readers to configure and start them.
                 foreach (ImpinjReader reader in readers)
                 {
-                    Project.RegisterNewAmbient(new Antenna(reader, 1), new Ambient("Room1"));
-                    Project.RegisterNewAmbient(new Antenna(reader, 2), new Ambient("Room2"));
+                    Project.RegisterNewAmbient(Tuple.Create(reader.Name, (ushort)1), new Ambient("Room1"));
+                    Project.RegisterNewAmbient(Tuple.Create(reader.Name, (ushort)2), new Ambient("Room2"));
 
                     // Connect to the reader
                     reader.Connect();
@@ -203,7 +202,8 @@ namespace TG2_RFID
             {
                 if (Project.isTagRegistered(tag))
                 {
-                    Project.readingCardholderTag(tag);
+                    Console.WriteLine("Antena: {0}, EPC: {1}, RSSI: {2}", tag.AntennaPortNumber, tag.Epc.ToString(), tag.PeakRssiInDbm);
+                    Project.readingCardholderTag(tag, sender.Name);
                     Project.processCardholderData(tag);
                 }
             }

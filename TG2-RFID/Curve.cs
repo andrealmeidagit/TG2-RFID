@@ -73,6 +73,20 @@ namespace TG2_RFID
             catch(Exception e) { }
         }
 
+        public void addPointWithAvgFilter(double x, double y)
+        {
+            if (curveData.Count >= 3)
+            {
+                var avg = y + curveData.Values[curveData.Count - 1] + curveData.Values[curveData.Count - 2];
+                avg = avg / 3;
+                addPoint(x, avg);
+            } 
+            else 
+            {
+                addPoint(x, y);
+            }
+        }
+
         /// <summary>
         /// Prints the curve in console.
         /// </summary>
@@ -96,12 +110,13 @@ namespace TG2_RFID
             }
 
             int loc;
-            var maxY = getCurveMaxAbsY();
+            //var maxY = getCurveMaxAbsY();
+            var maxY = 100;
             LINE[cHalf] = DOT; 
             foreach (var pair in curveData)
             {
-
                 loc = (int)Math.Round(cMaxLineChars * (pair.Value + maxY) / (2 * maxY));
+                //loc = (int)Math.Round(cMaxLineChars * (pair.Value + maxY) / (2 * maxY));
                 if (loc == LINE.Length)
                 {
                     LINE[loc - 1] = X;
@@ -118,9 +133,14 @@ namespace TG2_RFID
             }
         }
 
+        public void printCurveLastValue()
+        {
+            Console.WriteLine(curveData[curveData.Keys[0]]);
+        }
+
         /*!
          * TODO
-         */ 
+         */
         public void writeCurveToFile()
         {
 
@@ -249,6 +269,11 @@ namespace TG2_RFID
         {
             maxNumberOfPoints = 100;
             curveData = new SortedList<double, double>();
+        }
+
+        public int getSize()
+        {
+            return curveData.Count;
         }
     }
 }

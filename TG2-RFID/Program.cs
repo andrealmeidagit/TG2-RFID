@@ -65,8 +65,8 @@ namespace TG2_RFID
 
         static void Main(/*string[] args*/)
         {
-            //Console.WriteLine("Test Step");
-            //Curve cc = new Curve();
+            Console.WriteLine("Test Step");
+            Curve cc = new Curve();
             //Curve.populateCurveTest(cc);
             //cc.printCurveInConsole();
             //Console.WriteLine("{0}", cc.getMeanY());
@@ -150,6 +150,8 @@ namespace TG2_RFID
                     //settings.AutoStop.DurationInMs = 500;
 
 
+                    settings.ReaderMode = ReaderMode.DenseReaderM8;
+
 
 
                     // Apply the newly modified settings.
@@ -202,7 +204,7 @@ namespace TG2_RFID
             {
                 if (Project.isTagRegistered(tag))
                 {
-                    Console.WriteLine("Antena: {0}, EPC: {1}, RSSI: {2}", tag.AntennaPortNumber, tag.Epc.ToString(), tag.PeakRssiInDbm);
+                    //Console.WriteLine("Antena: {0}, EPC: {1}, RSSI: {2}", tag.AntennaPortNumber, tag.Epc.ToString(), tag.PeakRssiInDbm);
                     Project.readingCardholderTag(tag, sender.Name);
                     Project.processCardholderData(tag);
                 }

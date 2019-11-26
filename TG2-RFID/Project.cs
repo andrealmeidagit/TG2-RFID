@@ -91,6 +91,9 @@ namespace TG2_RFID
         }
 
 
+        // TODO
+        // Aqui vamos processar a curva já populada!
+        // Processa o cardholder data
         public static void processCardholderData(Tag tag)
         {
             Cardholder cardholder = new Cardholder();

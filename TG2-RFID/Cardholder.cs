@@ -72,6 +72,8 @@ namespace TG2_RFID
             name = "DefaultName";
             thermalCapacity = 1000;
             wasInitialized = false;
+            curvesPowerReadingsDictionary = new Dictionary<Tuple<String, ushort>, Curve>();
+            curvesDoplerFrequencyReadingsDictionary = new Dictionary<Tuple<String, ushort>, Curve>();
         }
 
         /// <summary>
@@ -83,6 +85,8 @@ namespace TG2_RFID
             name = personName;
             thermalCapacity = 1000;
             wasInitialized = false;
+            curvesPowerReadingsDictionary = new Dictionary<Tuple<String, ushort>, Curve>();
+            curvesDoplerFrequencyReadingsDictionary = new Dictionary<Tuple<String, ushort>, Curve>();
         }
 
         /// <summary>
@@ -95,6 +99,8 @@ namespace TG2_RFID
             name = personName;
             thermalCapacity = personThermalCapacity;
             wasInitialized = false;
+            curvesPowerReadingsDictionary = new Dictionary<Tuple<String, ushort>, Curve>();
+            curvesDoplerFrequencyReadingsDictionary = new Dictionary<Tuple<String, ushort>, Curve>();
         }
 
         /// <summary>
@@ -108,6 +114,8 @@ namespace TG2_RFID
             thermalCapacity = 1000;
             tagEPC = personTagEPC;
             wasInitialized = false;
+            curvesPowerReadingsDictionary = new Dictionary<Tuple<String, ushort>, Curve>();
+            curvesDoplerFrequencyReadingsDictionary = new Dictionary<Tuple<String, ushort>, Curve>();
         }
 
         /// <summary>
@@ -170,13 +178,15 @@ namespace TG2_RFID
             lastSeenTime = DateTime.Now;
             lastSeenRSSI = tag.PeakRssiInDbm;
 
+
             if (!wasInitialized)
             {
                 firstSeenTime = lastSeenTime;
                 wasInitialized = true;
             }
 
-            double readingTime = (double)(lastSeenTime.Date.Millisecond) - (double)(firstSeenTime.Date.Millisecond);
+            var diffTime = lastSeenTime - firstSeenTime;
+            double readingTime = (double)(diffTime.TotalMilliseconds);//(double)(lastSeenTime.Date.Millisecond) - (double)(firstSeenTime.Date.Millisecond);
 
             Antenna seenAntenna = new Antenna();
 
@@ -186,19 +196,50 @@ namespace TG2_RFID
             {
                 curvesPowerReadingsDictionary.Add(tupleAntenna, new Curve());
             }
-            Curve powerCurve = new Curve();
-            curvesPowerReadingsDictionary.TryGetValue(tupleAntenna, out powerCurve);
-            powerCurve.addPoint(readingTime, tag.PeakRssiInDbm);
+            Curve powerCurve;
+            try
+            {
+                powerCurve = curvesPowerReadingsDictionary[tupleAntenna];
+                powerCurve.addPointWithAvgFilter(readingTime, tag.PeakRssiInDbm);
+                //Console.WriteLine("SIZE PWRCURVE {0} TIME {1}", powerCurve.getSize(), readingTime);
+                if (tupleAntenna.Item2 == 1)
+                {
+                    powerCurve.printCurveInConsole();
+                    //powerCurve.printCurveLastValue;
+                }
+            }
+            catch(Exception e)
+            {
+            }
 
-            if (!curvesPowerReadingsDictionary.ContainsKey(tupleAntenna))
+
+            if (!curvesDoplerFrequencyReadingsDictionary.ContainsKey(tupleAntenna))
             {
                 curvesDoplerFrequencyReadingsDictionary.Add(tupleAntenna, new Curve());
             }
-            Curve dopplerCurve = new Curve();
-            curvesDoplerFrequencyReadingsDictionary.TryGetValue(tupleAntenna, out dopplerCurve);
-            dopplerCurve.addPoint(readingTime, tag.RfDopplerFrequency);
+            Curve dopplerCurve;
+            try
+            {
+                dopplerCurve = curvesDoplerFrequencyReadingsDictionary[tupleAntenna];
+                dopplerCurve.addPointWithAvgFilter(readingTime, tag.RfDopplerFrequency);
+                //Console.WriteLine("SIZE DOPCURVE {0} TIME {1}", dopplerCurve.getSize(), readingTime);
+                if (tupleAntenna.Item2 == 1)
+                {
+                    //dopplerCurve.printCurveInConsole();
+                    //dopplerCurve.printCurveLastValue();
+                    //Console.WriteLine("DOPVAL {0} TIME {1}", tag.RfDopplerFrequency, readingTime);
+                }
+            }
+            catch (Exception e)
+            {
+            }
 
-            int test = 0;
+
+
+            //Console.WriteLine("I am dead!");
+            //Console.WriteLine("Antena: {0}, EPC: {1}, RSSI: {2}", tag.AntennaPortNumber, tag.Epc.ToString(), tag.PeakRssiInDbm);
+
+
             //tag.AntennaPortNumber;
             //tag.RfDopplerFrequency
             //curvesPowerReadingsDictionary.Add

@@ -267,6 +267,55 @@ namespace TG2_RFID
         }
 
         /// <summary>
+        /// Getter for the crossing treshold between positive and negative values.
+        /// </summary>
+        public double GetPosNegTransition()
+        {
+            SortedList<double, double> positiveData = new SortedList<double, double>();
+            SortedList<double, double> negativeData = new SortedList<double, double>();
+            foreach (var pair in curveData)
+            {
+                if (pair.Value > 0)
+                {
+                    positiveData.Add(pair.Key, pair.Value);
+                }
+                else
+                {
+                    negativeData.Add(pair.Key, pair.Value);
+                }
+
+                //positives median
+                double sumPosX = 0;
+                double medianPosX = 0;
+                foreach (var pairPos in positiveData)
+                {
+                    sumPosX += pairPos.Key;
+                }
+                if (positiveData.Count != 0)
+                {
+                    medianPosX = sumPosX / positiveData.Count;
+                }
+
+                //negatives median
+                double sumNegX = 0;
+                double medianNegX = 0;
+                foreach (var pairNeg in negativeData)
+                {
+                    sumNegX += pairNeg.Key;
+                }
+                if (negativeData.Count != 0)
+                {
+                    medianNegX = sumNegX / negativeData.Count;
+                }
+
+                //to be continued
+
+
+            }
+
+        }
+
+        /// <summary>
         /// Constructor for a curve.
         /// </summary>
         public Curve()

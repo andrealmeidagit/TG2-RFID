@@ -111,12 +111,24 @@ namespace TG2_RFID
         // Processa o cardholder data
         public static void ProcessCardholderData(Tag tag, string senderName)
         {
+            //get curves
             registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder person);
-            Tuple<string,ushort> antenna = Tuple.Create<string, ushort>(senderName, tag.AntennaPortNumber);
-            Transition transition = Project.GetTransitionInstance(antenna);
-            Curve powerCurveLastAntenna = person.GetPowerCurve(transition);
-            Curve dopplerCurveLastAntenna = person.GetDopplerEffectCurve();
+            Tuple<string,ushort> antennaPersonAt = Tuple.Create<string, ushort>(senderName, tag.AntennaPortNumber);
+            Transition transition = Project.GetTransitionInstance(antennaPersonAt);
+            Tuple<string,ushort> otherAntenna = transition.GetOtherAntenna(antennaPersonAt);
+            Curve powerCurveLastAntenna = person.GetPowerCurve(antennaPersonAt);
+            Curve powerCurveOtherAntenna = person.GetPowerCurve(otherAntenna);
+            Curve dopplerCurveLastAntenna = person.GetDopplerEffectCurve(antennaPersonAt);
+            Curve dopplerCurveOtherAntenna = person.GetDopplerEffectCurve(otherAntenna);
 
+            //compare powerCurve peaks
+            Tuple<double, double> peakLastAntenna = powerCurveLastAntenna.GetCurveMaxPoint();
+            Tuple<double, double> peakOtherAntenna = powerCurveOtherAntenna.GetCurveMaxPoint();
+            if (peakLastAntenna.Item1 > peakOtherAntenna.Item1)
+            {
+                double reliabilityPower = Math.Abs(peakLastAntenna.Item2 / peakOtherAntenna.Item2);
+
+            }
 
 
 

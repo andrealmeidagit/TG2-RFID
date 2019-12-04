@@ -58,6 +58,16 @@ namespace TG2_RFID
             ambient2 = amb2;
         }
 
-
+        public Tuple<string, ushort> GetOtherAntenna(Tuple <string, ushort> givenAntenna)
+        {
+            if (antenna1 == givenAntenna)
+            {
+                return antenna2;
+            }
+            else
+            {
+                return antenna1;
+            }
+        }
     }
 }

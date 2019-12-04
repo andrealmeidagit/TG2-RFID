@@ -111,12 +111,15 @@ namespace TG2_RFID
                 Project.RegisterNewAmbient(3, new Ambient("Room3"));
 
                 //Create map of transitions
-                Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #1", 1), new Transition(Project.GetAmbientInstance(0), "Reader #1", 1, Project.GetAmbientInstance(1), "Reader #1", 2));
-                Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #1", 2), new Transition(Project.GetAmbientInstance(0), "Reader #1", 1, Project.GetAmbientInstance(1), "Reader #1", 2));
-                Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #2", 1), new Transition(Project.GetAmbientInstance(1), "Reader #2", 1, Project.GetAmbientInstance(2), "Reader #2", 2));
-                Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #2", 2), new Transition(Project.GetAmbientInstance(1), "Reader #2", 1, Project.GetAmbientInstance(2), "Reader #2", 2));
-                Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #3", 1), new Transition(Project.GetAmbientInstance(1), "Reader #3", 1, Project.GetAmbientInstance(3), "Reader #3", 2));
-                Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #3", 2), new Transition(Project.GetAmbientInstance(1), "Reader #3", 1, Project.GetAmbientInstance(3), "Reader #3", 2));
+                Transition transition1 = new Transition(Project.GetAmbientInstance(0), "Reader #1", 1, Project.GetAmbientInstance(1), "Reader #1", 2);
+                Transition transition2 = new Transition(Project.GetAmbientInstance(1), "Reader #2", 1, Project.GetAmbientInstance(2), "Reader #2", 2);
+                Transition transition3 = new Transition(Project.GetAmbientInstance(1), "Reader #3", 1, Project.GetAmbientInstance(3), "Reader #3", 2);
+                Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #1", 1), transition1);
+                Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #1", 2), transition1);
+                Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #2", 1), transition2);
+                Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #2", 2), transition2);
+                Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #3", 1), transition3);
+                Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #3", 2), transition3);
 
                 // Loop through the List of readers to configure and start them.
                 foreach (ImpinjReader reader in readers)

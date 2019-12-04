@@ -56,13 +56,13 @@ namespace TG2_RFID
          /// Holds a map of curves per antenna in which this cardholder was seen
          /// holding the history of RSSI power per time.
          /// </summary>
-        public Dictionary<Tuple<String, ushort>, Curve> curvesPowerReadingsDictionary;
+        public Dictionary<Transition, Curve> curvesPowerReadingsDictionary;
 
         /// <summary>
         /// Holds a map of curves per antenna in which this cardholder was seen
         /// holding the history of doppler frequency per time.
         /// </summary>
-        public Dictionary<Tuple<String, ushort>, Curve> curvesDoplerFrequencyReadingsDictionary;
+        public Dictionary<Transition, Curve> curvesDoplerFrequencyReadingsDictionary;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:TG2_RFID.Cardholder"/> class.
@@ -72,8 +72,8 @@ namespace TG2_RFID
             name = "DefaultName";
             thermalCapacity = 1000;
             wasInitialized = false;
-            curvesPowerReadingsDictionary = new Dictionary<Tuple<String, ushort>, Curve>();
-            curvesDoplerFrequencyReadingsDictionary = new Dictionary<Tuple<String, ushort>, Curve>();
+            curvesPowerReadingsDictionary = new Dictionary<Transition, Curve>();
+            curvesDoplerFrequencyReadingsDictionary = new Dictionary<Transition, Curve>();
         }
 
         /// <summary>
@@ -85,8 +85,8 @@ namespace TG2_RFID
             name = personName;
             thermalCapacity = 1000;
             wasInitialized = false;
-            curvesPowerReadingsDictionary = new Dictionary<Tuple<String, ushort>, Curve>();
-            curvesDoplerFrequencyReadingsDictionary = new Dictionary<Tuple<String, ushort>, Curve>();
+            curvesPowerReadingsDictionary = new Dictionary<Transition, Curve>();
+            curvesDoplerFrequencyReadingsDictionary = new Dictionary<Transition, Curve>();
         }
 
         /// <summary>
@@ -99,8 +99,8 @@ namespace TG2_RFID
             name = personName;
             thermalCapacity = personThermalCapacity;
             wasInitialized = false;
-            curvesPowerReadingsDictionary = new Dictionary<Tuple<String, ushort>, Curve>();
-            curvesDoplerFrequencyReadingsDictionary = new Dictionary<Tuple<String, ushort>, Curve>();
+            curvesPowerReadingsDictionary = new Dictionary<Transition, Curve>();
+            curvesDoplerFrequencyReadingsDictionary = new Dictionary<Transition, Curve>();
         }
 
         /// <summary>
@@ -114,8 +114,8 @@ namespace TG2_RFID
             thermalCapacity = 1000;
             tagEPC = personTagEPC;
             wasInitialized = false;
-            curvesPowerReadingsDictionary = new Dictionary<Tuple<String, ushort>, Curve>();
-            curvesDoplerFrequencyReadingsDictionary = new Dictionary<Tuple<String, ushort>, Curve>();
+            curvesPowerReadingsDictionary = new Dictionary<Transition, Curve>();
+            curvesDoplerFrequencyReadingsDictionary = new Dictionary<Transition, Curve>();
         }
 
         /// <summary>
@@ -140,10 +140,10 @@ namespace TG2_RFID
         /// </summary>
         /// <returns>The power curve.</returns>
         /// <param name="antenna">Antenna.</param>
-        public Curve getPowerCurve(Tuple<String, ushort> antenna)
+        public Curve getPowerCurve(Transition transition)
         {
             Curve retCurve = new Curve();
-            curvesPowerReadingsDictionary.TryGetValue(antenna, out retCurve);
+            curvesPowerReadingsDictionary.TryGetValue(transition, out retCurve);
             return retCurve;
         }
 
@@ -152,10 +152,10 @@ namespace TG2_RFID
         /// </summary>
         /// <returns>The doppler effect curve.</returns>
         /// <param name="antenna">Antenna.</param>
-        public Curve getDopplerEffectCurve(Tuple<String, ushort> antenna)
+        public Curve getDopplerEffectCurve(Transition transition)
         {
             Curve retCurve = new Curve();
-            curvesDoplerFrequencyReadingsDictionary.TryGetValue(antenna, out retCurve);
+            curvesDoplerFrequencyReadingsDictionary.TryGetValue(transition, out retCurve);
             return retCurve;
         }
 
@@ -190,61 +190,40 @@ namespace TG2_RFID
 
             Antenna seenAntenna = new Antenna();
 
-            var tupleAntenna = Tuple.Create<String, ushort>(senderName, tag.AntennaPortNumber);
-
-            if (!curvesPowerReadingsDictionary.ContainsKey(tupleAntenna))
+            Transition transLocal = Project.getTransitionInstance(Tuple.Create<string, ushort>(senderName, tag.AntennaPortNumber));
+            if (!curvesPowerReadingsDictionary.ContainsKey(transLocal))
             {
-                curvesPowerReadingsDictionary.Add(tupleAntenna, new Curve());
+                curvesPowerReadingsDictionary.Add(transLocal, new Curve());
             }
             Curve powerCurve;
             try
             {
-                powerCurve = curvesPowerReadingsDictionary[tupleAntenna];
+                powerCurve = curvesPowerReadingsDictionary[transLocal];
                 powerCurve.addPointWithAvgFilter(readingTime, tag.PeakRssiInDbm);
-                //Console.WriteLine("SIZE PWRCURVE {0} TIME {1}", powerCurve.getSize(), readingTime);
-                if (tupleAntenna.Item2 == 1)
-                {
-                    powerCurve.printCurveInConsole();
-                    //powerCurve.printCurveLastValue;
-                }
             }
             catch(Exception e)
             {
+                // Handle .NET errors.
+                Console.WriteLine("Exception : {0}", e.Message);
             }
 
 
-            if (!curvesDoplerFrequencyReadingsDictionary.ContainsKey(tupleAntenna))
+            if (!curvesDoplerFrequencyReadingsDictionary.ContainsKey(transLocal))
             {
-                curvesDoplerFrequencyReadingsDictionary.Add(tupleAntenna, new Curve());
+                curvesDoplerFrequencyReadingsDictionary.Add(transLocal, new Curve());
             }
             Curve dopplerCurve;
             try
             {
-                dopplerCurve = curvesDoplerFrequencyReadingsDictionary[tupleAntenna];
+                dopplerCurve = curvesDoplerFrequencyReadingsDictionary[transLocal];
                 dopplerCurve.addPointWithAvgFilter(readingTime, tag.RfDopplerFrequency);
-                //Console.WriteLine("SIZE DOPCURVE {0} TIME {1}", dopplerCurve.getSize(), readingTime);
-                if (tupleAntenna.Item2 == 1)
-                {
-                    //dopplerCurve.printCurveInConsole();
-                    //dopplerCurve.printCurveLastValue();
-                    //Console.WriteLine("DOPVAL {0} TIME {1}", tag.RfDopplerFrequency, readingTime);
-                }
             }
             catch (Exception e)
             {
+                // Handle .NET errors.
+                Console.WriteLine("Exception : {0}", e.Message);
             }
-
-
-
-            //Console.WriteLine("I am dead!");
             //Console.WriteLine("Antena: {0}, EPC: {1}, RSSI: {2}", tag.AntennaPortNumber, tag.Epc.ToString(), tag.PeakRssiInDbm);
-
-
-            //tag.AntennaPortNumber;
-            //tag.RfDopplerFrequency
-            //curvesPowerReadingsDictionary.Add
-
-
         }
     }
 }

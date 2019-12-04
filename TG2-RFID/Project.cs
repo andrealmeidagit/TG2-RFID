@@ -20,7 +20,13 @@ namespace TG2_RFID
         /// <summary>
         /// The map of registed ambients in the project.
         /// </summary>
-        protected static volatile Dictionary<Tuple<String, ushort>, Ambient> registerAmbient = new Dictionary<Tuple<String, ushort>, Ambient>();
+        protected static volatile Dictionary<ushort, Ambient> registerAmbient = new Dictionary<ushort, Ambient>();
+
+        /// <summary>
+        /// The map of registed transitions in the project.
+        /// </summary>
+        protected static volatile Dictionary<Tuple<String, ushort>, Transition> registerTransition = new Dictionary<Tuple<String, ushort>, Transition>();
+
 
         /// <summary>
         /// Registers a new cardholder given an tag epc.
@@ -38,9 +44,19 @@ namespace TG2_RFID
         /// </summary>
         /// <param name="antenna">Antenna.</param>
         /// <param name="ambient">Ambient.</param>
-        public static void RegisterNewAmbient(Tuple<String, ushort> antenna, Ambient ambient)
+        public static void RegisterNewAmbient(ushort roomNumber, Ambient ambient)
         {
-            registerAmbient.Add(antenna, ambient);
+            registerAmbient.Add(roomNumber, ambient);
+        }
+
+        /// <summary>
+        /// Registers a new ambient given an antenna.
+        /// </summary>
+        /// <param name="antenna">Antenna.</param>
+        /// <param name="transition">Ambient.</param>
+        public static void RegisterNewTransition(Tuple<String, ushort> antenna, Transition transition)
+        {
+            registerTransition.Add(antenna, transition);
         }
 
         public static void PopulateProjectData()
@@ -98,6 +114,25 @@ namespace TG2_RFID
         {
             Cardholder cardholder = new Cardholder();
             registeredPeople.TryGetValue(tag.Epc.ToString(), out cardholder);
+            
+        }
+
+        /// <summary>
+        /// Returns Ambient type instance from dictionary according to key given
+        /// </summary>
+        public static Ambient getAmbientInstance (ushort ambientKey)
+        {
+            registerAmbient.TryGetValue(ambientKey, out Ambient ambientInstance);
+            return ambientInstance;
+        }
+
+        /// <summary>
+        /// Returns Transition type instance from dictionary according to key given
+        /// </summary>
+        public static Transition getTransitionInstance(Tuple<string, ushort> antennaID)
+        {
+            registerTransition.TryGetValue(antennaID, out Transition transitionInstance);
+            return transitionInstance;
         }
     }
 }

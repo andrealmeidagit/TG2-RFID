@@ -86,27 +86,41 @@ namespace TG2_RFID
                 // Connect to the reader.
                 // Pass in a reader hostname or IP address as a 
                 // command line argument when running the example
-                /*if (args.Length != 2)
-                {
-                    Console.WriteLine("Error: No hostname specified.  Pass in two reader hostnames as command line arguments when running the Sdk Example.");
-                    return;
-                }
-                string hostname1 = args[0];
-                string hostname2 = args[1];*/
-                //               string hostname1 = "speedwayr-10-9f-bb.local";
+                                /*if (args.Length != 2)
+                                {
+                                    Console.WriteLine("Error: No hostname specified.  Pass in two reader hostnames as command line arguments when running the Sdk Example.");
+                                    return;
+                                }
+                                string hostname1 = args[0];
+                                string hostname2 = args[1];*/
+
+                // string hostname1 = "speedwayr-10-9f-bb.local";
                 string hostname2 = "speedwayr-10-9f-c8.local";
-                //               string hostname3 = "speedwayr-10-9f-3f.local";
+                // string hostname3 = "speedwayr-10-9f-3f.local";
+
                 // Create two reader instances and add them to the List of readers.
-                //                readers.Add(new ImpinjReader(hostname1, "Reader #1"));
+                // readers.Add(new ImpinjReader(hostname1, "Reader #1"));
                 readers.Add(new ImpinjReader(hostname2, "Reader #2"));
-                //                readers.Add(new ImpinjReader(hostname3, "Reader #3"));
+                // readers.Add(new ImpinjReader(hostname3, "Reader #3"));
+
+
+                //Create map of rooms
+                Project.RegisterNewAmbient(0, new Ambient("Outside"));
+                Project.RegisterNewAmbient(1, new Ambient("Room1"));
+                Project.RegisterNewAmbient(2, new Ambient("Room2"));
+                Project.RegisterNewAmbient(3, new Ambient("Room3"));
+
+                //Create map of transitions
+                Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #1", 1), new Transition(Project.getAmbientInstance(0), "Reader #1", 1, Project.getAmbientInstance(1), "Reader #1", 2));
+                Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #1", 2), new Transition(Project.getAmbientInstance(0), "Reader #1", 1, Project.getAmbientInstance(1), "Reader #1", 2));
+                Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #2", 1), new Transition(Project.getAmbientInstance(1), "Reader #2", 1, Project.getAmbientInstance(2), "Reader #2", 2));
+                Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #2", 2), new Transition(Project.getAmbientInstance(1), "Reader #2", 1, Project.getAmbientInstance(2), "Reader #2", 2));
+                Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #3", 1), new Transition(Project.getAmbientInstance(1), "Reader #3", 1, Project.getAmbientInstance(3), "Reader #3", 2));
+                Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #3", 2), new Transition(Project.getAmbientInstance(1), "Reader #3", 1, Project.getAmbientInstance(3), "Reader #3", 2));
 
                 // Loop through the List of readers to configure and start them.
                 foreach (ImpinjReader reader in readers)
                 {
-                    Project.RegisterNewAmbient(Tuple.Create(reader.Name, (ushort)1), new Ambient("Room1"));
-                    Project.RegisterNewAmbient(Tuple.Create(reader.Name, (ushort)2), new Ambient("Room2"));
-
                     // Connect to the reader
                     reader.Connect();
 

@@ -61,7 +61,7 @@ namespace TG2_RFID
     class Program
     {
         // Create a collection to hold all the ImpinjReader instances.
-        static List<ImpinjReader> readers = new List<ImpinjReader>();
+        protected static List<ImpinjReader> readers = new List<ImpinjReader>();
 
         static void Main(/*string[] args*/)
         {
@@ -111,12 +111,12 @@ namespace TG2_RFID
                 Project.RegisterNewAmbient(3, new Ambient("Room3"));
 
                 //Create map of transitions
-                Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #1", 1), new Transition(Project.getAmbientInstance(0), "Reader #1", 1, Project.getAmbientInstance(1), "Reader #1", 2));
-                Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #1", 2), new Transition(Project.getAmbientInstance(0), "Reader #1", 1, Project.getAmbientInstance(1), "Reader #1", 2));
-                Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #2", 1), new Transition(Project.getAmbientInstance(1), "Reader #2", 1, Project.getAmbientInstance(2), "Reader #2", 2));
-                Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #2", 2), new Transition(Project.getAmbientInstance(1), "Reader #2", 1, Project.getAmbientInstance(2), "Reader #2", 2));
-                Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #3", 1), new Transition(Project.getAmbientInstance(1), "Reader #3", 1, Project.getAmbientInstance(3), "Reader #3", 2));
-                Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #3", 2), new Transition(Project.getAmbientInstance(1), "Reader #3", 1, Project.getAmbientInstance(3), "Reader #3", 2));
+                Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #1", 1), new Transition(Project.GetAmbientInstance(0), "Reader #1", 1, Project.GetAmbientInstance(1), "Reader #1", 2));
+                Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #1", 2), new Transition(Project.GetAmbientInstance(0), "Reader #1", 1, Project.GetAmbientInstance(1), "Reader #1", 2));
+                Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #2", 1), new Transition(Project.GetAmbientInstance(1), "Reader #2", 1, Project.GetAmbientInstance(2), "Reader #2", 2));
+                Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #2", 2), new Transition(Project.GetAmbientInstance(1), "Reader #2", 1, Project.GetAmbientInstance(2), "Reader #2", 2));
+                Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #3", 1), new Transition(Project.GetAmbientInstance(1), "Reader #3", 1, Project.GetAmbientInstance(3), "Reader #3", 2));
+                Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #3", 2), new Transition(Project.GetAmbientInstance(1), "Reader #3", 1, Project.GetAmbientInstance(3), "Reader #3", 2));
 
                 // Loop through the List of readers to configure and start them.
                 foreach (ImpinjReader reader in readers)
@@ -216,11 +216,11 @@ namespace TG2_RFID
         {
             foreach (Tag tag in report)
             {
-                if (Project.isTagRegistered(tag))
+                if (Project.IsTagRegistered(tag))
                 {
                     //Console.WriteLine("Antena: {0}, EPC: {1}, RSSI: {2}", tag.AntennaPortNumber, tag.Epc.ToString(), tag.PeakRssiInDbm);
-                    Project.readingCardholderTag(tag, sender.Name);
-                    Project.processCardholderData(tag);
+                    Project.ReadingCardholderTag(tag, sender.Name);
+                    Project.ProcessCardholderData(tag);
                 }
             }
 

@@ -21,7 +21,7 @@ namespace TG2_RFID
         /// Setter for the source reader for this antenna.
         /// </summary>
         /// <param name="newReader">New reader.</param>
-        public void setReader(ImpinjReader newReader)
+        public void SetReader(ImpinjReader newReader)
         {
             srcReader = newReader;
         }
@@ -30,7 +30,7 @@ namespace TG2_RFID
         /// Setter for the antenna port number.
         /// </summary>
         /// <param name="newAntennaPortNumber">New antenna port number.</param>
-        public void setAntennaPortNumber(ushort newAntennaPortNumber)
+        public void SetAntennaPortNumber(ushort newAntennaPortNumber)
         {
             srcAntennaPortNumber = newAntennaPortNumber;
         }
@@ -38,7 +38,7 @@ namespace TG2_RFID
         /// <summary>
         /// Getter for this antenna source reader.
         /// </summary>
-        public ImpinjReader getReader()
+        public ImpinjReader GetReader()
         {
             return srcReader;
         }
@@ -46,7 +46,7 @@ namespace TG2_RFID
         /// <summary>
         /// Getter for this antenna port number.
         /// </summary>
-        public ushort getAntennaPortNumber()
+        public ushort GetAntennaPortNumber()
         {
             return srcAntennaPortNumber;
         }

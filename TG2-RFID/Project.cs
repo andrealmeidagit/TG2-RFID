@@ -35,7 +35,7 @@ namespace TG2_RFID
         /// <param name="person">Person.</param>
         public static void RegisterNewCardholder(string valueEPC, Cardholder person)
         {
-            person.setCardholderEPC(valueEPC);
+            person.SetCardholderEPC(valueEPC);
             registeredPeople.Add(valueEPC, person);
         }
 
@@ -90,7 +90,7 @@ namespace TG2_RFID
         /// </summary>
         /// <returns><c>true</c>, if tag registered was ised, <c>false</c> otherwise.</returns>
         /// <param name="tag">Tag.</param>
-        public static bool isTagRegistered(Tag tag)
+        public static bool IsTagRegistered(Tag tag)
         {
             return registeredPeople.ContainsKey(tag.Epc.ToString()); ;
         }
@@ -98,29 +98,26 @@ namespace TG2_RFID
         /// <summary>
         /// TODO
         /// </summary>
-        public static void readingCardholderTag(Tag tag, String senderName)
+        public static void ReadingCardholderTag(Tag tag, String senderName)
         {
-            Cardholder cardholder = new Cardholder();
-            registeredPeople.TryGetValue(tag.Epc.ToString(), out cardholder);
+            registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
 
-            cardholder.readingCardholderTag(tag, senderName);
+            cardholder.ReadingCardholderTag(tag, senderName);
         }
 
 
         // TODO
         // Aqui vamos processar a curva já populada!
         // Processa o cardholder data
-        public static void processCardholderData(Tag tag)
+        public static void ProcessCardholderData(Tag tag)
         {
-            Cardholder cardholder = new Cardholder();
-            registeredPeople.TryGetValue(tag.Epc.ToString(), out cardholder);
-            
+            registeredPeople.TryGetValue(tag.Epc.ToString(), out _);
         }
 
         /// <summary>
         /// Returns Ambient type instance from dictionary according to key given
         /// </summary>
-        public static Ambient getAmbientInstance (ushort ambientKey)
+        public static Ambient GetAmbientInstance (ushort ambientKey)
         {
             registerAmbient.TryGetValue(ambientKey, out Ambient ambientInstance);
             return ambientInstance;
@@ -129,7 +126,7 @@ namespace TG2_RFID
         /// <summary>
         /// Returns Transition type instance from dictionary according to key given
         /// </summary>
-        public static Transition getTransitionInstance(Tuple<string, ushort> antennaID)
+        public static Transition GetTransitionInstance(Tuple<string, ushort> antennaID)
         {
             registerTransition.TryGetValue(antennaID, out Transition transitionInstance);
             return transitionInstance;

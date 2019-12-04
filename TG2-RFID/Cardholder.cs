@@ -121,7 +121,7 @@ namespace TG2_RFID
         /// <summary>
         /// Getter for the tag EPC.
         /// </summary>
-        public string getCardholderEPC()
+        public string GetCardholderEPC()
         {
             return tagEPC;
         }
@@ -130,7 +130,7 @@ namespace TG2_RFID
         /// Setter for the tag EPC.
         /// </summary>
         /// <param name="newTagEPC">New tag epc.</param>
-        public void setCardholderEPC(string newTagEPC)
+        public void SetCardholderEPC(string newTagEPC)
         {
             tagEPC = newTagEPC;
         }
@@ -140,10 +140,10 @@ namespace TG2_RFID
         /// </summary>
         /// <returns>The power curve.</returns>
         /// <param name="antenna">Antenna.</param>
-        public Curve getPowerCurve(Transition transition)
+        public Curve GetPowerCurve(Transition transition)
         {
-            Curve retCurve = new Curve();
-            curvesPowerReadingsDictionary.TryGetValue(transition, out retCurve);
+            //Curve retCurve = new Curve();
+            curvesPowerReadingsDictionary.TryGetValue(transition, out Curve retCurve);
             return retCurve;
         }
 
@@ -152,10 +152,9 @@ namespace TG2_RFID
         /// </summary>
         /// <returns>The doppler effect curve.</returns>
         /// <param name="antenna">Antenna.</param>
-        public Curve getDopplerEffectCurve(Transition transition)
+        public Curve GetDopplerEffectCurve(Transition transition)
         {
-            Curve retCurve = new Curve();
-            curvesDoplerFrequencyReadingsDictionary.TryGetValue(transition, out retCurve);
+            curvesDoplerFrequencyReadingsDictionary.TryGetValue(transition, out Curve retCurve);
             return retCurve;
         }
 
@@ -163,7 +162,7 @@ namespace TG2_RFID
         /// Getter for the tag EPC.
         /// </summary>
         /// <returns>The tag epc.</returns>
-        public string getTagEPC()
+        public string GetTagEPC()
         {
             return tagEPC;
         }
@@ -172,7 +171,7 @@ namespace TG2_RFID
         /// TODO
         /// TODO Reset buffer at 4am due to overflow problem.
         /// </summary>
-        public void readingCardholderTag(Tag tag, String senderName)
+        public void ReadingCardholderTag(Tag tag, String senderName)
         {
             lastSeenTag = tag;
             lastSeenTime = DateTime.Now;
@@ -188,9 +187,9 @@ namespace TG2_RFID
             var diffTime = lastSeenTime - firstSeenTime;
             double readingTime = (double)(diffTime.TotalMilliseconds);//(double)(lastSeenTime.Date.Millisecond) - (double)(firstSeenTime.Date.Millisecond);
 
-            Antenna seenAntenna = new Antenna();
+            //Antenna seenAntenna = new Antenna();
 
-            Transition transLocal = Project.getTransitionInstance(Tuple.Create<string, ushort>(senderName, tag.AntennaPortNumber));
+            Transition transLocal = Project.GetTransitionInstance(Tuple.Create<string, ushort>(senderName, tag.AntennaPortNumber));
             if (!curvesPowerReadingsDictionary.ContainsKey(transLocal))
             {
                 curvesPowerReadingsDictionary.Add(transLocal, new Curve());
@@ -199,7 +198,7 @@ namespace TG2_RFID
             try
             {
                 powerCurve = curvesPowerReadingsDictionary[transLocal];
-                powerCurve.addPointWithAvgFilter(readingTime, tag.PeakRssiInDbm);
+                powerCurve.AddPointWithAvgFilter(readingTime, tag.PeakRssiInDbm);
             }
             catch(Exception e)
             {
@@ -216,7 +215,7 @@ namespace TG2_RFID
             try
             {
                 dopplerCurve = curvesDoplerFrequencyReadingsDictionary[transLocal];
-                dopplerCurve.addPointWithAvgFilter(readingTime, tag.RfDopplerFrequency);
+                dopplerCurve.AddPointWithAvgFilter(readingTime, tag.RfDopplerFrequency);
             }
             catch (Exception e)
             {

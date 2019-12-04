@@ -19,7 +19,7 @@ namespace TG2_RFID
         /// <summary>
         /// Setter for the Ambients of the transition.       
         /// </summary>
-        public void setAmbients2Transition(Ambient amb1, Ambient amb2)
+        public void SetAmbients2Transition(Ambient amb1, Ambient amb2)
         {
             ambient1 = amb1;
             ambient2 = amb2;
@@ -28,7 +28,7 @@ namespace TG2_RFID
         /// <summary>
         /// Setter for the Antennas of the transition.       
         /// </summary>
-        public void setAntennas2Transition(String firstReader, ushort firstAntenna, String secndReader, ushort secndAntenna)
+        public void SetAntennas2Transition(String firstReader, ushort firstAntenna, String secndReader, ushort secndAntenna)
         {
             Tuple.Create<String, ushort>(firstReader, firstAntenna);
             Tuple.Create<String, ushort>(secndReader, secndAntenna);
@@ -37,7 +37,7 @@ namespace TG2_RFID
         /// <summary>
         /// Getter for first Ambient and Antenna
         /// </summary>
-        public Tuple<Ambient, Tuple<String, ushort>> getAtributes1stAmb()
+        public Tuple<Ambient, Tuple<String, ushort>> GetAtributes1stAmb()
         {
             return Tuple.Create<Ambient, Tuple<String, ushort>>(ambient1, antenna1);
         }
@@ -45,7 +45,7 @@ namespace TG2_RFID
         /// <summary>
         /// Getter for second Ambient and Antenna
         /// </summary>
-        public Tuple<Ambient, Tuple<String, ushort>> getAtributes2ndAmb()
+        public Tuple<Ambient, Tuple<String, ushort>> GetAtributes2ndAmb()
         {
             return Tuple.Create<Ambient, Tuple<String, ushort>>(ambient2, antenna2);
         }

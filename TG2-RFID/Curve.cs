@@ -21,38 +21,38 @@ namespace TG2_RFID
         /// </summary>
         protected int maxNumberOfPoints;
 
-        public static void populateCurveTest(Curve curve)
+        public static void PopulateCurveTest(Curve curve)
         {
-            curve.addPoint(0, 0);
-            curve.addPoint(0.1, 0.1);
-            curve.addPoint(0.2, 0.2);
-            curve.addPoint(0.25, 0.25);
-            curve.addPoint(0.4, 0.4);
-            curve.addPoint(0.5, 0.5);
-            curve.addPoint(0.6, 0.6);
-            curve.addPoint(0.9, 0.9);
-            curve.addPoint(0.99, .95);
-            curve.addPoint(.33, .33);
-            curve.addPoint(.7, .8);
-            curve.addPoint(.75, .8);
-            curve.addPoint(.8, .8);
-            curve.addPoint(1.3, .6);
-            curve.addPoint(1.4, .4);
-            curve.addPoint(1.5, .3);
-            curve.addPoint(1.6, .2);
-            curve.addPoint(1.7, .1);
-            curve.addPoint(1.8, -.1);
-            curve.addPoint(1.9, -.1);
-            curve.addPoint(2.1, -.2);
-            curve.addPoint(2.15, -.3);
-            curve.addPoint(2.2, -.4);
-            curve.addPoint(2.225, -.5);
-            curve.addPoint(2.25, -.6);
-            curve.addPoint(2.275, -.7);
-            curve.addPoint(2.3, -.8);
-            curve.addPoint(2.4, -.9);
-            curve.addPoint(2.5, -.95);
-            curve.addPoint(2.7, -.95);
+            curve.AddPoint(0, 0);
+            curve.AddPoint(0.1, 0.1);
+            curve.AddPoint(0.2, 0.2);
+            curve.AddPoint(0.25, 0.25);
+            curve.AddPoint(0.4, 0.4);
+            curve.AddPoint(0.5, 0.5);
+            curve.AddPoint(0.6, 0.6);
+            curve.AddPoint(0.9, 0.9);
+            curve.AddPoint(0.99, .95);
+            curve.AddPoint(.33, .33);
+            curve.AddPoint(.7, .8);
+            curve.AddPoint(.75, .8);
+            curve.AddPoint(.8, .8);
+            curve.AddPoint(1.3, .6);
+            curve.AddPoint(1.4, .4);
+            curve.AddPoint(1.5, .3);
+            curve.AddPoint(1.6, .2);
+            curve.AddPoint(1.7, .1);
+            curve.AddPoint(1.8, -.1);
+            curve.AddPoint(1.9, -.1);
+            curve.AddPoint(2.1, -.2);
+            curve.AddPoint(2.15, -.3);
+            curve.AddPoint(2.2, -.4);
+            curve.AddPoint(2.225, -.5);
+            curve.AddPoint(2.25, -.6);
+            curve.AddPoint(2.275, -.7);
+            curve.AddPoint(2.3, -.8);
+            curve.AddPoint(2.4, -.9);
+            curve.AddPoint(2.5, -.95);
+            curve.AddPoint(2.7, -.95);
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace TG2_RFID
         /// </summary>
         /// <param name="x">The x coordinate.</param>
         /// <param name="y">The y coordinate.</param>
-        public void addPoint(double x, double y)
+        public void AddPoint(double x, double y)
         {
             try
             {
@@ -70,27 +70,31 @@ namespace TG2_RFID
                     curveData.Remove(curveData.Keys[0]);
                 }
             } 
-            catch(Exception e) { }
+            catch(Exception e)
+            {
+                // Handle .NET errors.
+                Console.WriteLine("Exception : {0}", e.Message);
+            }
         }
 
-        public void addPointWithAvgFilter(double x, double y)
+        public void AddPointWithAvgFilter(double x, double y)
         {
             if (curveData.Count >= 3)
             {
                 var avg = y + curveData.Values[curveData.Count - 1] + curveData.Values[curveData.Count - 2];
-                avg = avg / 3;
-                addPoint(x, avg);
+                avg /= 3;
+                AddPoint(x, avg);
             } 
             else 
             {
-                addPoint(x, y);
+                AddPoint(x, y);
             }
         }
 
         /// <summary>
         /// Prints the curve in console.
         /// </summary>
-        public void printCurveInConsole()
+        public void PrintCurveInConsole()
         {
             const char BLANK = ' ';
             const char DOT = '.';
@@ -133,7 +137,7 @@ namespace TG2_RFID
             }
         }
 
-        public void printCurveLastValue()
+        public void PrintCurveLastValue()
         {
             Console.WriteLine(curveData[curveData.Keys[0]]);
         }
@@ -141,7 +145,7 @@ namespace TG2_RFID
         /*!
          * TODO
          */
-        public void writeCurveToFile()
+        public void WriteCurveToFile()
         {
 
         }
@@ -150,7 +154,7 @@ namespace TG2_RFID
         /// Getter the minimum value for x coordinate.
         /// </summary>
         /// <returns>The curve minimum x.</returns>
-        public double getCurveMinX()
+        public double GetCurveMinX()
         {
             return curveData.Keys[0];
         }
@@ -158,7 +162,7 @@ namespace TG2_RFID
         /// <summary>
         /// Getter the maximum value for x coordinate.
         /// </summary>
-        public double getCurveMaxX()
+        public double GetCurveMaxX()
         {
             return curveData.Keys[curveData.Count - 1];
         }
@@ -166,7 +170,7 @@ namespace TG2_RFID
         /// <summary>
         /// Getter the curve maximum absolute value for y coordinate.
         /// </summary>
-        public double getCurveMaxAbsY()
+        public double GetCurveMaxAbsY()
         {
             double maxY = -1e12;
             if (curveData.Count != 0)
@@ -185,7 +189,7 @@ namespace TG2_RFID
         /// <summary>
         /// Getter the curve coordinate for the y maximum value.
         /// </summary>
-        public Tuple<double, double> getCurveMaxPoint()
+        public Tuple<double, double> GetCurveMaxPoint()
         {
             double maxX = -1e12, maxY = -1e12;
             if (curveData.Count != 0)
@@ -206,7 +210,7 @@ namespace TG2_RFID
         /// <summary>
         /// Getter the curve coordinate for the y minimum value.
         /// </summary>
-        public Tuple<double, double> getCurveMinPoint()
+        public Tuple<double, double> GetCurveMinPoint()
         {
             double minY = 1e12;
             double minX = 1e12;
@@ -224,7 +228,7 @@ namespace TG2_RFID
         /// <summary>
         /// Getter the curve median y coordinates.
         /// </summary>
-        public double getMedianY()
+        public double GetMedianY()
         {
             double medianY = 0;
             if (curveData.Count != 0)
@@ -247,7 +251,7 @@ namespace TG2_RFID
         /// <summary>
         /// Getter the curve mean y coordinates.
         /// </summary>
-        public double getMeanY()
+        public double GetMeanY()
         {
             double sumY = 0;
             double medianY = 0;
@@ -271,7 +275,7 @@ namespace TG2_RFID
             curveData = new SortedList<double, double>();
         }
 
-        public int getSize()
+        public int GetSize()
         {
             return curveData.Count;
         }

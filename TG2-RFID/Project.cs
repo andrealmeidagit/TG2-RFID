@@ -109,9 +109,18 @@ namespace TG2_RFID
         // TODO
         // Aqui vamos processar a curva já populada!
         // Processa o cardholder data
-        public static void ProcessCardholderData(Tag tag)
+        public static void ProcessCardholderData(Tag tag, string senderName)
         {
-            registeredPeople.TryGetValue(tag.Epc.ToString(), out _);
+            registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder person);
+            Tuple<string,ushort> antenna = Tuple.Create<string, ushort>(senderName, tag.AntennaPortNumber);
+            Transition transition = Project.GetTransitionInstance(antenna);
+            Curve powerCurveLastAntenna = person.GetPowerCurve(transition);
+            Curve dopplerCurveLastAntenna = person.GetDopplerEffectCurve();
+
+
+
+
+
         }
 
         /// <summary>

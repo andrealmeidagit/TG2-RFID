@@ -220,7 +220,7 @@ namespace TG2_RFID
                 {
                     //Console.WriteLine("Antena: {0}, EPC: {1}, RSSI: {2}", tag.AntennaPortNumber, tag.Epc.ToString(), tag.PeakRssiInDbm);
                     Project.ReadingCardholderTag(tag, sender.Name);
-                    Project.ProcessCardholderData(tag);
+                    Project.ProcessCardholderData(tag, sender.Name);
                 }
             }
 

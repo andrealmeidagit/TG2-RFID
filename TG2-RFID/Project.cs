@@ -62,10 +62,10 @@ namespace TG2_RFID
         public static void PopulateProjectData()
         {
             Project.registeredPeople.Clear();
-            Project.registeredPeople.Add("E200 001B 2609 0147 0510 7BBD", new Cardholder("Joao"));
-            Project.registeredPeople.Add("E200 001B 2609 0147 0460 7BA5", new Cardholder("Maria"));
+            /*Project.registeredPeople.Add("E200 001B 2609 0147 0510 7BBD", new Cardholder("Joao"));
+            Project.registeredPeople.Add("E200 001B 2609 0147 0460 7BA5", new Cardholder("Maria"));*/
             Project.registeredPeople.Add("E200 001B 2609 0147 0520 7BB1", new Cardholder("Jose"));
-            Project.registeredPeople.Add("E200 001B 2609 0147 0450 7B99", new Cardholder("Arlindo"));
+            /*Project.registeredPeople.Add("E200 001B 2609 0147 0450 7B99", new Cardholder("Arlindo"));
             Project.registeredPeople.Add("E200 001B 2609 0147 0380 7B85", new Cardholder("Manoel"));
             Project.registeredPeople.Add("E200 001B 2609 0147 0910 7C5D", new Cardholder("Carla"));
             Project.registeredPeople.Add("E200 001B 2609 0147 0850 7C39", new Cardholder("Julia"));
@@ -81,7 +81,7 @@ namespace TG2_RFID
             Project.registeredPeople.Add("E200 001B 2609 0147 0650 7BE9", new Cardholder("Renato"));
             Project.registeredPeople.Add("E200 001B 2609 0147 0790 7C2D", new Cardholder("Jesse"));
             Project.registeredPeople.Add("E200 001B 2609 0147 0590 7BDD", new Cardholder("Artur"));
-            Project.registeredPeople.Add("E200 001B 2609 0147 1040 7C81", new Cardholder("Marina"));
+            Project.registeredPeople.Add("E200 001B 2609 0147 1040 7C81", new Cardholder("Marina"));*/
             //GlobalDataReader1.Cadastro.Add("AD08 3003 4604 3152 2C00 0086", "Tag exemplo impinj");
         }
 
@@ -124,15 +124,19 @@ namespace TG2_RFID
             //compare powerCurve peaks
             Tuple<double, double> peakLastAntenna = powerCurveLastAntenna.GetCurveMaxPoint();
             Tuple<double, double> peakOtherAntenna = powerCurveOtherAntenna.GetCurveMaxPoint();
-            if (peakLastAntenna.Item1 > peakOtherAntenna.Item1)
+            //if (peakLastAntenna.Item1 > peakOtherAntenna.Item1)
+            if (powerCurveLastAntenna.GetCurveLastValue() > powerCurveOtherAntenna.GetCurveLastValue())
             {
-                double reliabilityPower = Math.Abs(peakLastAntenna.Item2 / peakOtherAntenna.Item2);
-
+                //sets ambient to cardholder
+                registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
+                cardholder.SetCurrAmbient(transition.GetAmb4GivenAntenna(antennaPersonAt));
             }
-
-
-
-
+            else
+            {
+                //sets ambient to cardholder
+                registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
+                cardholder.SetCurrAmbient(transition.GetAmb4GivenAntenna(otherAntenna));
+            }
         }
 
         /// <summary>
@@ -152,5 +156,17 @@ namespace TG2_RFID
             registerTransition.TryGetValue(antennaID, out Transition transitionInstance);
             return transitionInstance;
         }
+
+        /// <summary>
+        /// Getter people
+        /// </summary>
+        /// 
+        public static Cardholder GetCardholder(string tag)
+        {
+            registeredPeople.TryGetValue(tag, out Cardholder cardholderObj);
+            return cardholderObj;
+        }
+
+
     }
 }

@@ -89,5 +89,12 @@ namespace TG2_RFID
             }
         }
 
+        /// <summary>
+        /// Getter ambient name       
+        /// </summary>
+        public string GetName()
+        {
+            return name;
+        }
     }
 }

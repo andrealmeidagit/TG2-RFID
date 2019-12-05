@@ -142,6 +142,12 @@ namespace TG2_RFID
             Console.WriteLine(curveData[curveData.Keys[0]]);
         }
 
+        public double GetCurveLastValue()
+        {
+            var x = curveData.Keys[curveData.Keys.Count - 1];
+            return curveData[x];
+        }
+
         /*!
          * TODO
          */
@@ -269,56 +275,36 @@ namespace TG2_RFID
         /// <summary>
         /// Getter for the crossing treshold between positive and negative values.
         /// </summary>
-        public double GetPosNegTransition()
+        public Tuple<double, double> GetCrossingPoint()
         {
-            SortedList<double, double> positiveData = new SortedList<double, double>();
-            SortedList<double, double> negativeData = new SortedList<double, double>();
-            foreach (var pair in curveData)
+            Tuple<double, double> crossingPoint = Tuple.Create <double, double>(Double.NaN, Double.NaN);
+            bool isFirstSignPositive = false;
+            for (int i = curveData.Count - 1; i >= 0; i--)
             {
-                if (pair.Value > 0)
+                var x = curveData.Keys[i];
+                var y = curveData[x];
+                if (i == curveData.Count - 1)
                 {
-                    positiveData.Add(pair.Key, pair.Value);
+                    isFirstSignPositive = y > 0 ? true : false;
+                    continue;
                 }
-                else
+                if ((y < 0 && isFirstSignPositive) || (y > 0 && !isFirstSignPositive))
                 {
-                    negativeData.Add(pair.Key, pair.Value);
+                    x += curveData.Keys[i + 1];
+                    x *= 0.5;
+                    y += curveData[curveData.Keys[i + 1]];
+                    y *= 0.5;
+                    crossingPoint = Tuple.Create <double, double>(x, y);
+                    break;
                 }
-
-                //positives median
-                double sumPosX = 0;
-                double medianPosX = 0;
-                foreach (var pairPos in positiveData)
-                {
-                    sumPosX += pairPos.Key;
-                }
-                if (positiveData.Count != 0)
-                {
-                    medianPosX = sumPosX / positiveData.Count;
-                }
-
-                //negatives median
-                double sumNegX = 0;
-                double medianNegX = 0;
-                foreach (var pairNeg in negativeData)
-                {
-                    sumNegX += pairNeg.Key;
-                }
-                if (negativeData.Count != 0)
-                {
-                    medianNegX = sumNegX / negativeData.Count;
-                }
-
-                //to be continued
-
-
             }
-
+            return crossingPoint;
         }
 
-        /// <summary>
-        /// Constructor for a curve.
-        /// </summary>
-        public Curve()
+/// <summary>
+/// Constructor for a curve.
+/// </summary>
+public Curve()
         {
             maxNumberOfPoints = 100;
             curveData = new SortedList<double, double>();

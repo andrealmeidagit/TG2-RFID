@@ -50,17 +50,23 @@ namespace TG2_RFID
             return Tuple.Create<Ambient, Tuple<String, ushort>>(ambient2, antenna2);
         }
 
+        /// <summary>
+        /// Setter for transition
+        /// </summary>
         public Transition (Ambient amb1, String reader1, ushort ant1, Ambient amb2, String reader2, ushort ant2)
         {
-            Tuple.Create<String, ushort>(reader1, ant1);
-            Tuple.Create<String, ushort>(reader2, ant2);
+            antenna1 = Tuple.Create<String, ushort>(reader1, ant1);
+            antenna2 = Tuple.Create<String, ushort>(reader2, ant2);
             ambient1 = amb1;
             ambient2 = amb2;
         }
 
+        /// <summary>
+        /// Gets the second antenna, given the first one
+        /// </summary>
         public Tuple<string, ushort> GetOtherAntenna(Tuple <string, ushort> givenAntenna)
         {
-            if (antenna1 == givenAntenna)
+            if (antenna1.Item1 == givenAntenna.Item1 && antenna1.Item2 == givenAntenna.Item2)
             {
                 return antenna2;
             }
@@ -69,5 +75,24 @@ namespace TG2_RFID
                 return antenna1;
             }
         }
+
+
+        /// <summary>
+        /// Getter for Ambient related to antenna
+        /// </summary>
+        public Ambient GetAmb4GivenAntenna(Tuple <string, ushort> ant)
+        {
+            if (ant.Item1 == antenna1.Item1 && ant.Item2 == antenna1.Item2)
+            {
+                return ambient1;
+            } else if (ant.Item1 == antenna2.Item1 && ant.Item2 == antenna2.Item2)
+            {
+                return ambient2;
+            } else
+            {
+                throw new Exception ();
+            }
+        }
+
     }
 }

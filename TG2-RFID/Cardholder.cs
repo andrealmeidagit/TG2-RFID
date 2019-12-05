@@ -142,6 +142,11 @@ namespace TG2_RFID
         /// <param name="antenna">Antenna.</param>
         public Curve GetPowerCurve(Tuple<String, ushort> antenna)
         {
+            if (!curvesPowerReadingsDictionary.ContainsKey(antenna))
+            {
+                curvesPowerReadingsDictionary.Add(antenna, new Curve());
+            }
+
             curvesPowerReadingsDictionary.TryGetValue(antenna, out Curve retCurve);
             return retCurve;
         }
@@ -153,6 +158,10 @@ namespace TG2_RFID
         /// <param name="antenna">Antenna.</param>
         public Curve GetDopplerEffectCurve(Tuple<String, ushort> antenna)
         {
+            if (!curvesDoplerFrequencyReadingsDictionary.ContainsKey(antenna))
+            {
+                curvesDoplerFrequencyReadingsDictionary.Add(antenna, new Curve());
+            }
             curvesDoplerFrequencyReadingsDictionary.TryGetValue(antenna, out Curve retCurve);
             return retCurve;
         }
@@ -200,7 +209,7 @@ namespace TG2_RFID
                 //Console.WriteLine("SIZE PWRCURVE {0} TIME {1}", powerCurve.getSize(), readingTime);
                 if (tupleAntenna.Item2 == 1)
                 {
-                    powerCurve.PrintCurveInConsole();
+                    //powerCurve.PrintCurveInConsole();
                     //powerCurve.printCurveLastValue;
                 }
             }
@@ -234,5 +243,22 @@ namespace TG2_RFID
                 Console.WriteLine("Exception : {0}", e.Message);
             }
         }
+
+        /// <summary>
+        /// Setter Ambiente
+        /// </summary>
+        public void SetCurrAmbient(Ambient currAmb)
+        {
+            currentAmbient = currAmb;
+        }
+
+        /// <summary>
+        /// Getter Ambiente
+        /// </summary>
+        public Ambient GetAmbient()
+        {
+            return currentAmbient;
+        }
+
     }
 }

@@ -125,7 +125,8 @@ namespace TG2_RFID
             Tuple<double, double> peakLastAntenna = powerCurveLastAntenna.GetCurveMaxPoint();
             Tuple<double, double> peakOtherAntenna = powerCurveOtherAntenna.GetCurveMaxPoint();
             //if (peakLastAntenna.Item1 > peakOtherAntenna.Item1)
-            if (powerCurveLastAntenna.GetCurveLastValue() > powerCurveOtherAntenna.GetCurveLastValue())
+            if (powerCurveLastAntenna.GetMeanY() > powerCurveOtherAntenna.GetMeanY())
+            //if (powerCurveLastAntenna.GetCurveLastValue() > powerCurveOtherAntenna.GetCurveLastValue())
             {
                 //sets ambient to cardholder
                 registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);

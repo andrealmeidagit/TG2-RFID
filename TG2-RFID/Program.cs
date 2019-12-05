@@ -50,7 +50,7 @@ namespace TG2_RFID
 {
     class GlobalDataReader1
     {
-        public static int RSSILowPassFilter = -55;
+        public static int RSSILowPassFilter = -75;
         public static volatile int reader_1_count = 0;
         public static volatile int reader_2_count = 0;
         public static volatile int reader_3_count = 0;
@@ -212,7 +212,6 @@ namespace TG2_RFID
             Console.WriteLine("Press enter to exit.");
             Console.ReadKey();
         }
-
 
 
         private static void Captura_tags(ImpinjReader sender, TagReport report)

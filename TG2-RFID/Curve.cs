@@ -144,8 +144,16 @@ namespace TG2_RFID
 
         public double GetCurveLastValue()
         {
-            var x = curveData.Keys[curveData.Keys.Count - 1];
-            return curveData[x];
+            if (curveData.Count != 0)
+            {
+                var x = curveData.Keys[curveData.Keys.Count - 1];
+                return curveData[x];
+            }
+            else
+            {
+                return 0;
+            }
+            
         }
 
         /*!
@@ -272,6 +280,12 @@ namespace TG2_RFID
             return medianY;
         }
 
+        //TODO
+        public Tuple<double, double> getLastPeakPoint()
+        {
+            return null;
+        }
+
         /// <summary>
         /// Getter for the crossing treshold between positive and negative values.
         /// </summary>
@@ -306,7 +320,7 @@ namespace TG2_RFID
 /// </summary>
 public Curve()
         {
-            maxNumberOfPoints = 100;
+            maxNumberOfPoints = 30;
             curveData = new SortedList<double, double>();
         }
 

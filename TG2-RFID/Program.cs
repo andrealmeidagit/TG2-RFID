@@ -50,7 +50,7 @@ namespace TG2_RFID
 {
     class GlobalDataReader1
     {
-        public static int RSSILowPassFilter = -55;
+        public static int RSSILowPassFilter = -65;
         public static volatile int reader_1_count = 0;
         public static volatile int reader_2_count = 0;
         public static volatile int reader_3_count = 0;
@@ -65,25 +65,32 @@ namespace TG2_RFID
 
         static void Main(/*string[] args*/)
         {
-            Console.WriteLine("Test Step");
-            Curve cc = new Curve();
-            //Curve.populateCurveTest(cc);
-            //cc.printCurveInConsole();
-            //Console.WriteLine("{0}", cc.getMeanY());
-            //Console.WriteLine("{0}", cc.getMedianY());
-            //var maxPoint = cc.getCurveMaxPoint();
-            //var minPoint = cc.getCurveMinPoint();
-            //Console.WriteLine("{0}, {1}", maxPoint.Item1, maxPoint.Item2);
-            //Console.WriteLine("{0}, {1}", minPoint.Item1, minPoint.Item2);
-            //Console.WriteLine("{0}, {1}", cc.getCurveMinX(), cc.getCurveMaxX());
+            //Console.WriteLine("Test Step");
+            //Curve cc = new Curve();
+            //Curve.PopulateCurveTest(cc);
+            //cc.PrintCurveInConsole();
+            //Console.WriteLine("MeanY:{0}", cc.CalculateMeanY());
+            //Console.WriteLine("MedianY:{0}", cc.GetMedianY());
+            //var maxPoint = cc.GetCurveMaxPoint();
+            //var minPoint = cc.GetCurveMinPoint();
+            //Console.WriteLine("MaxPoint<{0}, {1}>", maxPoint.Item1, maxPoint.Item2);
+            //Console.WriteLine("MinPoint<{0}, {1}>", minPoint.Item1, minPoint.Item2);
+            //Console.WriteLine("MinX:{0}, MaxX:{1}", cc.GetCurveMinX(), cc.GetCurveMaxX());
+            //var crossingPoint = cc.CalculateCrossingPoint();
+            //Console.WriteLine("CrossingPoint<{0}, {1}>", crossingPoint.Item1, crossingPoint.Item2);
+            //var peaks = cc.CalculatePeaks();
+            //Console.WriteLine("NPeaks: {0}", peaks.Count);
+            //foreach (var peak in peaks)
+            //{
+            //    Console.WriteLine("Peak: <{0},{1}>", peak.Item1, peak.Item2);
+            //}
+
 
             //Console.WriteLine("End Test Step");
             //return;
-                       
-            Project.PopulateProjectData();
+            
             try
             {
-                // Declare hostnames for the readers with their address
                 string hostname1 = "speedwayr-10-9f-3f.local";
                 string hostname2 = "speedwayr-10-9f-c8.local";
                 string hostname3 = "speedwayr-10-9f-bb.local";
@@ -95,14 +102,14 @@ namespace TG2_RFID
 
 
                 //Create map of rooms
-                Project.RegisterNewAmbient(0, new Ambient("Outside"));
-                Project.RegisterNewAmbient(1, new Ambient("Room1"));
-                Project.RegisterNewAmbient(2, new Ambient("Room2"));
-                Project.RegisterNewAmbient(3, new Ambient("Room3"));
+                Project.RegisterNewAmbient(0, new Ambient("Outside(0)"));
+                Project.RegisterNewAmbient(1, new Ambient("Salona(1)"));
+                Project.RegisterNewAmbient(2, new Ambient("Reuniao(2)"));
+                Project.RegisterNewAmbient(3, new Ambient("Baias(3)"));
 
                 //Create map of transitions
-                Transition transition1 = new Transition(Project.GetAmbientInstance(0), "Reader #1", 1, Project.GetAmbientInstance(1), "Reader #1", 2);  
-                Transition transition2 = new Transition(Project.GetAmbientInstance(1), "Reader #2", 1, Project.GetAmbientInstance(2), "Reader #2", 2);
+                Transition transition1 = new Transition(Project.GetAmbientInstance(0), "Reader #1", 1, Project.GetAmbientInstance(1), "Reader #1", 2);
+                Transition transition2 = new Transition(Project.GetAmbientInstance(1), "Reader #2", 2, Project.GetAmbientInstance(2), "Reader #2", 1);
                 Transition transition3 = new Transition(Project.GetAmbientInstance(1), "Reader #3", 1, Project.GetAmbientInstance(3), "Reader #3", 2);
                 Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #1", 1), transition1);
                 Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #1", 2), transition1);
@@ -110,6 +117,9 @@ namespace TG2_RFID
                 Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #2", 2), transition2);
                 Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #3", 1), transition3);
                 Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #3", 2), transition3);
+
+                //Create Map of Cardholders
+                Project.PopulateProjectCardholders();
 
                 // Loop through the List of readers to configure and start them.
                 foreach (ImpinjReader reader in readers)
@@ -147,10 +157,10 @@ namespace TG2_RFID
                     //settings.Antennas.GetAntenna(2).RxSensitivityInDbm = -70.0;
                     // ...
 
-                    // Send a tag report for every tag read
-                    settings.Report.Mode = ReportMode.Individual;
+                    // Send a tag report every time the reader stops (period is over).
+                    settings.Report.Mode = ReportMode.Individual;// BatchAfterStop;
 
-                    // Reading tags for 1 seconds every 0.25 second /*use report.mode = bachAfterStop*/
+                    // Reading tags for 1 seconds every 0.25 second
                     //settings.AutoStart.Mode = AutoStartMode.Periodic;
                     //settings.AutoStart.PeriodInMs = 500;
                     //settings.AutoStop.Mode = AutoStopMode.Duration;
@@ -204,20 +214,63 @@ namespace TG2_RFID
         }
 
 
+
         private static void Captura_tags(ImpinjReader sender, TagReport report)
         {
             foreach (Tag tag in report)
             {
-                if (Project.IsTagRegistered(tag))
+                if (Project.IsTagRegistered(tag) && tag.PeakRssiInDbm > GlobalDataReader1.RSSILowPassFilter)
                 {
-                    //Console.WriteLine("Antena: {0}, EPC: {1}, RSSI: {2}", tag.AntennaPortNumber, tag.Epc.ToString(), tag.PeakRssiInDbm);
                     Project.ReadingCardholderTag(tag, sender.Name);
                     Project.ProcessCardholderData(tag, sender.Name);
-                    Console.WriteLine("Ambiente: {0}", (Project.GetCardholder(tag.Epc.ToString())).GetAmbient().GetName());
+                    var individuo = Project.GetCardholder(tag.Epc.ToString());
+                    var sala = individuo.GetAmbient().GetName();
+                    Console.WriteLine("Cardholder name: {0}, EPC {1},     Ambiente {2},    {3}, Antena {4}, RSSI: {5}", individuo.GetName(), tag.Epc.ToString(), sala, sender.Name, tag.AntennaPortNumber, tag.PeakRssiInDbm);
                 }
             }
+
+
+                /* if (tag.Epc.ToString() == "E200 001B 2609 0147 0510 7BBD" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0460 7BA5" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0520 7BB1" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0450 7B99" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0380 7B85" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0910 7C5D" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0850 7C39" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0840 7C31" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0710 7C0D" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0660 7BF5" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0900 7C55" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0390 7B8D" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0780 7C25" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0720 7C01" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0600 7BD1" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 1100 7CA5" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0650 7BE9" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0790 7C2D" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 0590 7BDD" ||
+                     tag.Epc.ToString() == "E200 001B 2609 0147 1040 7C81")*/
+                //if (GlobalDataReader1.Cadastro.ContainsKey(tag.Epc.ToString()))
+                //{
+                //    string trimmedEPC = tag.Epc.ToString().Replace(" ", string.Empty);
+                //    TimeSpan deltaT = new TimeSpan(tag.LastSeenTime.LocalDateTime.Ticks - tag.FirstSeenTime.LocalDateTime.Ticks);
+
+                //    Console.WriteLine("Antena: {0}, EPC: {1}, TAGSC: {2}, RSSI: {3}, LastSeen: {4}", tag.AntennaPortNumber, trimmedEPC, tag.TagSeenCount, tag.PeakRssiInDbm, tag.LastSeenTime);
+
+                //    if (GlobalDataReader1.SalaReuniao.ContainsKey(tag.Epc.ToString()))
+                //    {
+                //        SegundaLeituraSalaReuniao(sender.Name, tag.Epc.ToString(), tag.PeakRssiInDbm);
+                //    }
+                //    else if (GlobalDataReader1.CorredorMesas.ContainsKey(tag.Epc.ToString()))
+                //    {
+                //        SegundaLeituraCorredorMesas(sender.Name, tag.Epc.ToString(), tag.PeakRssiInDbm);
+                //    }
+                //    else
+                //    {
+                //        PrimeiraLeitura(sender.Name, tag.Epc.ToString(), tag.PeakRssiInDbm);
+                //    }
+                //}
+            //}
         }
-
-
     }
 }

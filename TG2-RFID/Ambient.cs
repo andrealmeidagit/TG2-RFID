@@ -69,7 +69,8 @@ namespace TG2_RFID
             try
             {
                 cardholders.Add(cardholder.GetTagEPC(), cardholder);
-            } catch(Exception e)
+            } 
+            catch(Exception e)
             {
                 // Handle .NET errors.
                 Console.WriteLine("Exception : {0}", e.Message);

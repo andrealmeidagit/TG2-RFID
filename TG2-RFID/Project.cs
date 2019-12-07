@@ -25,7 +25,7 @@ namespace TG2_RFID
         /// <summary>
         /// The map of registed transitions in the project.
         /// </summary>
-        protected static volatile Dictionary<Tuple<String, ushort>, Transition> registerTransition = new Dictionary<Tuple<String, ushort>, Transition>();
+        protected static volatile Dictionary<Tuple<string, ushort>, Transition> registerTransition = new Dictionary<Tuple<string, ushort>, Transition>();
 
 
         /// <summary>
@@ -113,19 +113,19 @@ namespace TG2_RFID
         {
             //get curves
             registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder person);
-            Tuple<string,ushort> antennaPersonAt = Tuple.Create<string, ushort>(senderName, tag.AntennaPortNumber);
-            Transition transition = Project.GetTransitionInstance(antennaPersonAt);
-            Tuple<string,ushort> otherAntenna = transition.GetOtherAntenna(antennaPersonAt);
-            Curve powerCurveLastAntenna = person.GetPowerCurve(antennaPersonAt);
-            Curve powerCurveOtherAntenna = person.GetPowerCurve(otherAntenna);
-            Curve dopplerCurveLastAntenna = person.GetDopplerEffectCurve(antennaPersonAt);
-            Curve dopplerCurveOtherAntenna = person.GetDopplerEffectCurve(otherAntenna);
+            var antennaPersonAt = Tuple.Create<string, ushort>(senderName, tag.AntennaPortNumber);
+            var transition = Project.GetTransitionInstance(antennaPersonAt);
+            var otherAntenna = transition.GetOtherAntenna(antennaPersonAt);
+            var powerCurveLastAntenna = person.GetPowerCurve(antennaPersonAt);
+            var powerCurveOtherAntenna = person.GetPowerCurve(otherAntenna);
+            var dopplerCurveLastAntenna = person.GetDopplerEffectCurve(antennaPersonAt);
+            var dopplerCurveOtherAntenna = person.GetDopplerEffectCurve(otherAntenna);
 
             //compare powerCurve peaks
-            Tuple<double, double> peakLastAntenna = powerCurveLastAntenna.GetCurveMaxPoint();
-            Tuple<double, double> peakOtherAntenna = powerCurveOtherAntenna.GetCurveMaxPoint();
+            var peakLastAntenna = powerCurveLastAntenna.GetCurveMaxPoint();
+            var peakOtherAntenna = powerCurveOtherAntenna.GetCurveMaxPoint();
             //if (peakLastAntenna.Item1 > peakOtherAntenna.Item1)
-            if (powerCurveLastAntenna.GetMeanY() > powerCurveOtherAntenna.GetMeanY())
+            if (powerCurveLastAntenna.CalculateMeanY() > powerCurveOtherAntenna.CalculateMeanY())
             //if (powerCurveLastAntenna.GetCurveLastValue() > powerCurveOtherAntenna.GetCurveLastValue())
             {
                 //sets ambient to cardholder

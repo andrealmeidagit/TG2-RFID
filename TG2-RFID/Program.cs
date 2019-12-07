@@ -50,7 +50,7 @@ namespace TG2_RFID
 {
     class GlobalDataReader1
     {
-        public static int RSSILowPassFilter = -75;
+        public static int RSSILowPassFilter = -55;
         public static volatile int reader_1_count = 0;
         public static volatile int reader_2_count = 0;
         public static volatile int reader_3_count = 0;
@@ -83,25 +83,15 @@ namespace TG2_RFID
             Project.PopulateProjectData();
             try
             {
-                // Connect to the reader.
-                // Pass in a reader hostname or IP address as a 
-                // command line argument when running the example
-                                /*if (args.Length != 2)
-                                {
-                                    Console.WriteLine("Error: No hostname specified.  Pass in two reader hostnames as command line arguments when running the Sdk Example.");
-                                    return;
-                                }
-                                string hostname1 = args[0];
-                                string hostname2 = args[1];*/
-
-                // string hostname1 = "speedwayr-10-9f-bb.local";
+                // Declare hostnames for the readers with their address
+                string hostname1 = "speedwayr-10-9f-3f.local";
                 string hostname2 = "speedwayr-10-9f-c8.local";
-                // string hostname3 = "speedwayr-10-9f-3f.local";
+                string hostname3 = "speedwayr-10-9f-bb.local";
 
                 // Create two reader instances and add them to the List of readers.
-                // readers.Add(new ImpinjReader(hostname1, "Reader #1"));
+                readers.Add(new ImpinjReader(hostname1, "Reader #1"));
                 readers.Add(new ImpinjReader(hostname2, "Reader #2"));
-                // readers.Add(new ImpinjReader(hostname3, "Reader #3"));
+                readers.Add(new ImpinjReader(hostname3, "Reader #3"));
 
 
                 //Create map of rooms
@@ -111,7 +101,7 @@ namespace TG2_RFID
                 Project.RegisterNewAmbient(3, new Ambient("Room3"));
 
                 //Create map of transitions
-                Transition transition1 = new Transition(Project.GetAmbientInstance(0), "Reader #1", 1, Project.GetAmbientInstance(1), "Reader #1", 2);
+                Transition transition1 = new Transition(Project.GetAmbientInstance(0), "Reader #1", 1, Project.GetAmbientInstance(1), "Reader #1", 2);  
                 Transition transition2 = new Transition(Project.GetAmbientInstance(1), "Reader #2", 1, Project.GetAmbientInstance(2), "Reader #2", 2);
                 Transition transition3 = new Transition(Project.GetAmbientInstance(1), "Reader #3", 1, Project.GetAmbientInstance(3), "Reader #3", 2);
                 Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #1", 1), transition1);
@@ -157,10 +147,10 @@ namespace TG2_RFID
                     //settings.Antennas.GetAntenna(2).RxSensitivityInDbm = -70.0;
                     // ...
 
-                    // Send a tag report every time the reader stops (period is over).
-                    settings.Report.Mode = ReportMode.Individual;// BatchAfterStop;
+                    // Send a tag report for every tag read
+                    settings.Report.Mode = ReportMode.Individual;
 
-                    // Reading tags for 1 seconds every 0.25 second
+                    // Reading tags for 1 seconds every 0.25 second /*use report.mode = bachAfterStop*/
                     //settings.AutoStart.Mode = AutoStartMode.Periodic;
                     //settings.AutoStart.PeriodInMs = 500;
                     //settings.AutoStop.Mode = AutoStopMode.Duration;
@@ -226,49 +216,8 @@ namespace TG2_RFID
                     Console.WriteLine("Ambiente: {0}", (Project.GetCardholder(tag.Epc.ToString())).GetAmbient().GetName());
                 }
             }
-
-
-                /* if (tag.Epc.ToString() == "E200 001B 2609 0147 0510 7BBD" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0460 7BA5" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0520 7BB1" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0450 7B99" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0380 7B85" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0910 7C5D" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0850 7C39" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0840 7C31" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0710 7C0D" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0660 7BF5" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0900 7C55" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0390 7B8D" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0780 7C25" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0720 7C01" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0600 7BD1" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 1100 7CA5" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0650 7BE9" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0790 7C2D" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0590 7BDD" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 1040 7C81")*/
-                //if (GlobalDataReader1.Cadastro.ContainsKey(tag.Epc.ToString()))
-                //{
-                //    string trimmedEPC = tag.Epc.ToString().Replace(" ", string.Empty);
-                //    TimeSpan deltaT = new TimeSpan(tag.LastSeenTime.LocalDateTime.Ticks - tag.FirstSeenTime.LocalDateTime.Ticks);
-
-                //    Console.WriteLine("Antena: {0}, EPC: {1}, TAGSC: {2}, RSSI: {3}, LastSeen: {4}", tag.AntennaPortNumber, trimmedEPC, tag.TagSeenCount, tag.PeakRssiInDbm, tag.LastSeenTime);
-
-                //    if (GlobalDataReader1.SalaReuniao.ContainsKey(tag.Epc.ToString()))
-                //    {
-                //        SegundaLeituraSalaReuniao(sender.Name, tag.Epc.ToString(), tag.PeakRssiInDbm);
-                //    }
-                //    else if (GlobalDataReader1.CorredorMesas.ContainsKey(tag.Epc.ToString()))
-                //    {
-                //        SegundaLeituraCorredorMesas(sender.Name, tag.Epc.ToString(), tag.PeakRssiInDbm);
-                //    }
-                //    else
-                //    {
-                //        PrimeiraLeitura(sender.Name, tag.Epc.ToString(), tag.PeakRssiInDbm);
-                //    }
-                //}
-            //}
         }
+
+
     }
 }

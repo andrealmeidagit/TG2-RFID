@@ -157,9 +157,9 @@ namespace TG2_RFID
         }
 
         /*!
-         * TODO
+         * Writes info about cardholder: name, EPC, Ambient and time-entered-ambient
          */
-        public void WriteCurveToFile()
+        public void WriteDataToFile()
         {
 
         }
@@ -281,7 +281,7 @@ namespace TG2_RFID
         }
 
         //TODO
-        public Tuple<double, double> getLastPeakPoint()
+        public Tuple<double, double> GetLastPeakPoint()
         {
             return null;
         }

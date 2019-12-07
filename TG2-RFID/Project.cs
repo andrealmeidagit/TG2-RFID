@@ -59,12 +59,40 @@ namespace TG2_RFID
             registerTransition.Add(antenna, transition);
         }
 
-        public static void PopulateProjectData()
+        public static void registerNewCardholder(string EPC, string name)
+        {
+            var cardholder = new Cardholder(name);
+            Project.registeredPeople.Add(EPC, cardholder);
+            foreach (var transition in Project.registerTransition.Values)
+            {
+                var ant1 = transition.GetAtributes1stAmb().Item2;
+                var ant2 = transition.GetAtributes2ndAmb().Item2;
+                if (!cardholder.curvesPowerReadingsDictionary.ContainsKey(ant1))
+                {
+                    cardholder.curvesPowerReadingsDictionary.Add(ant1, new Curve());
+                }
+                if (!cardholder.curvesPowerReadingsDictionary.ContainsKey(ant2))
+                {
+                    cardholder.curvesPowerReadingsDictionary.Add(ant2, new Curve());
+                }
+                if (!cardholder.curvesDoplerFrequencyReadingsDictionary.ContainsKey(ant1))
+                {
+                    cardholder.curvesDoplerFrequencyReadingsDictionary.Add(ant1, new Curve());
+                }
+                if (!cardholder.curvesDoplerFrequencyReadingsDictionary.ContainsKey(ant2))
+                {
+                    cardholder.curvesDoplerFrequencyReadingsDictionary.Add(ant2, new Curve());
+                }
+            }
+
+        }
+
+        public static void PopulateProjectCardholders()
         {
             Project.registeredPeople.Clear();
             /*Project.registeredPeople.Add("E200 001B 2609 0147 0510 7BBD", new Cardholder("Joao"));
             Project.registeredPeople.Add("E200 001B 2609 0147 0460 7BA5", new Cardholder("Maria"));*/
-            Project.registeredPeople.Add("E200 001B 2609 0147 0520 7BB1", new Cardholder("Jose"));
+            Project.registerNewCardholder("E200 001B 2609 0147 0520 7BB1", "Jose");
             /*Project.registeredPeople.Add("E200 001B 2609 0147 0450 7B99", new Cardholder("Arlindo"));
             Project.registeredPeople.Add("E200 001B 2609 0147 0380 7B85", new Cardholder("Manoel"));
             Project.registeredPeople.Add("E200 001B 2609 0147 0910 7C5D", new Cardholder("Carla"));
@@ -122,10 +150,21 @@ namespace TG2_RFID
             var dopplerCurveOtherAntenna = person.GetDopplerEffectCurve(otherAntenna);
 
             //compare powerCurve peaks
-            var peakLastAntenna = powerCurveLastAntenna.GetCurveMaxPoint();
-            var peakOtherAntenna = powerCurveOtherAntenna.GetCurveMaxPoint();
-            //if (peakLastAntenna.Item1 > peakOtherAntenna.Item1)
-            if (powerCurveLastAntenna.CalculateMeanY() > powerCurveOtherAntenna.CalculateMeanY())
+            var peakListLast = powerCurveLastAntenna.CalculatePeaks();
+            var peakListOther = powerCurveOtherAntenna.CalculatePeaks();
+            var maxLastAntenna = powerCurveLastAntenna.GetCurveMaxPoint();
+            var maxOtherAntenna = powerCurveOtherAntenna.GetCurveMaxPoint();
+
+            if (powerCurveLastAntenna.GetSize() > 4 ||
+                powerCurveLastAntenna.GetSize() > 4)
+            {
+                int TESTANDO = 0;
+            }
+
+            if ((peakListLast.Count > 0 && peakListOther.Count > 0 && (peakListLast[peakListLast.Count - 1].Item1 > peakListOther[peakListOther.Count - 1].Item1))
+                || (peakListLast.Count == 0 || peakListOther.Count == 0 && maxLastAntenna.Item1 > maxOtherAntenna.Item1))
+            //if (maxLastAntenna.Item1 > maxOtherAntenna.Item1)
+            //if (powerCurveLastAntenna.CalculateMeanY() > powerCurveOtherAntenna.CalculateMeanY())
             //if (powerCurveLastAntenna.GetCurveLastValue() > powerCurveOtherAntenna.GetCurveLastValue())
             {
                 //sets ambient to cardholder

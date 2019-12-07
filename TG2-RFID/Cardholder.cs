@@ -146,7 +146,6 @@ namespace TG2_RFID
             {
                 curvesPowerReadingsDictionary.Add(antenna, new Curve());
             }
-
             curvesPowerReadingsDictionary.TryGetValue(antenna, out Curve retCurve);
             return retCurve;
         }
@@ -176,6 +175,14 @@ namespace TG2_RFID
         }
 
         /// <summary>
+        /// Getter for the person's name.
+        /// </summary>
+        public string GetName()
+        {
+            return name;
+        }
+
+        /// <summary>
         /// TODO
         /// TODO Reset buffer at 4am due to overflow problem.
         /// </summary>
@@ -201,33 +208,30 @@ namespace TG2_RFID
             {
                 curvesPowerReadingsDictionary.Add(tupleAntenna, new Curve());
             }
-            Curve powerCurve;
-            try
-            {
-                powerCurve = curvesPowerReadingsDictionary[tupleAntenna];
-                powerCurve.AddPointWithAvgFilter(readingTime, tag.PeakRssiInDbm);
-                //Console.WriteLine("SIZE PWRCURVE {0} TIME {1}", powerCurve.getSize(), readingTime);
-                if (tupleAntenna.Item2 == 1)
-                {
-                    //powerCurve.PrintCurveInConsole();
-                    //powerCurve.printCurveLastValue;
-                }
-            }
-            catch (Exception e)
-            {
-                // Handle .NET errors.
-                Console.WriteLine("Exception : {0}", e.Message);
-            }
+            var powerCurve = curvesPowerReadingsDictionary[tupleAntenna];
+            powerCurve.AddPointWithAvgFilter(readingTime, tag.PeakRssiInDbm);
+            // foreach (var antenna in curvesPowerReadingsDictionary.Keys)
+            //{
+            //    cnt++;
+            //    var powerCurve = curvesPowerReadingsDictionary[antenna];
+            //    if (tupleAntenna.Equals(antenna))
+            //    {
+            //        powerCurve.AddPointWithAvgFilter(readingTime, tag.PeakRssiInDbm);
+            //    }
+            //    else
+            //    {
+            //        powerCurve.AddPointWithAvgFilter(readingTime, 0.0);
+            //    }
+            //}
 
 
             if (!curvesDoplerFrequencyReadingsDictionary.ContainsKey(tupleAntenna))
             {
                 curvesDoplerFrequencyReadingsDictionary.Add(tupleAntenna, new Curve());
             }
-            Curve dopplerCurve;
             try
             {
-                dopplerCurve = curvesDoplerFrequencyReadingsDictionary[tupleAntenna];
+                var dopplerCurve = curvesDoplerFrequencyReadingsDictionary[tupleAntenna];
                 dopplerCurve.AddPointWithAvgFilter(readingTime, tag.RfDopplerFrequency);
                 //Console.WriteLine("SIZE DOPCURVE {0} TIME {1}", dopplerCurve.getSize(), readingTime);
                 if (tupleAntenna.Item2 == 1)

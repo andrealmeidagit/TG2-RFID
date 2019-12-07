@@ -21,7 +21,9 @@ namespace TG2_RFID
         /// <summary>
         /// Holds the maximum amount of points in this curve.
         /// </summary>
-        static protected int maxNumberOfPoints = 100;
+        static protected int maxNumberOfPoints = 12;
+
+        static protected int averageFilterWindow = 3;
 
         protected double maximumPointX;
         protected double maximumPointY;
@@ -186,7 +188,7 @@ namespace TG2_RFID
                     minimumPointY = y;
                     minimumPointX = x;
                 }
-                if (curveData.Count == maxNumberOfPoints)
+                while (curveData.Count >= maxNumberOfPoints)
                 {
                     var removedX = curveData.Keys[0];
                     curveData.Remove(curveData.Keys[0]);
@@ -216,10 +218,10 @@ namespace TG2_RFID
 
         public void AddPointWithAvgFilter(double x, double y)
         {
-            if (curveData.Count >= 3)
+            if (curveData.Count >= averageFilterWindow)
             {
-                var avg = y + curveData.Values[curveData.Count - 1] + curveData.Values[curveData.Count - 2];
-                avg /= 3;
+                var avg = y + curveData.Values[curveData.Count - 1] + curveData.Values[curveData.Count - (averageFilterWindow - 1)];
+                avg /= averageFilterWindow;
                 AddPoint(x, avg);
             } 
             else 
@@ -468,24 +470,36 @@ namespace TG2_RFID
             int rangeOfPeaks = (int)(Math.Round(.3 * values.Count));
 
             List<Tuple<double, double>> peaks = new List<Tuple<double, double>>();
+
             double current;
             IEnumerable<double> range;
 
             int checksOnEachSide = rangeOfPeaks / 2;
-            for (int i = 0; i < values.Count; i++)
+            if (values.Count == 0)
             {
-                current = values[i];
-                range = values;
-
-                if (i > checksOnEachSide)
+                return peaks;
+            }
+            else if (values.Count < checksOnEachSide)
+            {
+                peaks.Add(Tuple.Create(maximumPointX, maximumPointY));
+            }
+            else
+            {
+                for (int i = 0; i < values.Count; i++)
                 {
-                    range = range.Skip(i - checksOnEachSide);
-                }
+                    current = values[i];
+                    range = values;
 
-                range = range.Take(rangeOfPeaks);
-                if ((range.Count() > 0) && (current == range.Max()))
-                {
-                    peaks.Add(Tuple.Create(curveData.Keys[i], curveData.Values[i]));
+                    if (i > checksOnEachSide)
+                    {
+                        range = range.Skip(i - checksOnEachSide);
+                    }
+
+                    range = range.Take(rangeOfPeaks);
+                    if ((range.Count() > 0) && (current == range.Max()))
+                    {
+                        peaks.Add(Tuple.Create(curveData.Keys[i], curveData.Values[i]));
+                    }
                 }
             }
             //watch.Stop();

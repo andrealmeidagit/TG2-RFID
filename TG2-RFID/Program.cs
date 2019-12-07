@@ -50,7 +50,7 @@ namespace TG2_RFID
 {
     class GlobalDataReader1
     {
-        public static int RSSILowPassFilter = -55;
+        public static int RSSILowPassFilter = -65;
         public static volatile int reader_1_count = 0;
         public static volatile int reader_2_count = 0;
         public static volatile int reader_3_count = 0;
@@ -88,13 +88,12 @@ namespace TG2_RFID
 
             //Console.WriteLine("End Test Step");
             //return;
-                       
-            Project.PopulateProjectData();
+            
             try
             {
-                string hostname1 = "speedwayr-10-9f-bb.local";
+                string hostname1 = "speedwayr-10-9f-3f.local";
                 string hostname2 = "speedwayr-10-9f-c8.local";
-                string hostname3 = "speedwayr-10-9f-3f.local";
+                string hostname3 = "speedwayr-10-9f-bb.local";
 
                 // Create two reader instances and add them to the List of readers.
                 readers.Add(new ImpinjReader(hostname1, "Reader #1"));
@@ -103,14 +102,14 @@ namespace TG2_RFID
 
 
                 //Create map of rooms
-                Project.RegisterNewAmbient(0, new Ambient("Outside"));
-                Project.RegisterNewAmbient(1, new Ambient("Room1"));
-                Project.RegisterNewAmbient(2, new Ambient("Room2"));
-                Project.RegisterNewAmbient(3, new Ambient("Room3"));
+                Project.RegisterNewAmbient(0, new Ambient("Outside(0)"));
+                Project.RegisterNewAmbient(1, new Ambient("Salona(1)"));
+                Project.RegisterNewAmbient(2, new Ambient("Reuniao(2)"));
+                Project.RegisterNewAmbient(3, new Ambient("Baias(3)"));
 
                 //Create map of transitions
                 Transition transition1 = new Transition(Project.GetAmbientInstance(0), "Reader #1", 1, Project.GetAmbientInstance(1), "Reader #1", 2);
-                Transition transition2 = new Transition(Project.GetAmbientInstance(1), "Reader #2", 1, Project.GetAmbientInstance(2), "Reader #2", 2);
+                Transition transition2 = new Transition(Project.GetAmbientInstance(1), "Reader #2", 2, Project.GetAmbientInstance(2), "Reader #2", 1);
                 Transition transition3 = new Transition(Project.GetAmbientInstance(1), "Reader #3", 1, Project.GetAmbientInstance(3), "Reader #3", 2);
                 Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #1", 1), transition1);
                 Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #1", 2), transition1);
@@ -118,6 +117,9 @@ namespace TG2_RFID
                 Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #2", 2), transition2);
                 Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #3", 1), transition3);
                 Project.RegisterNewTransition(Tuple.Create<string, ushort>("Reader #3", 2), transition3);
+
+                //Create Map of Cardholders
+                Project.PopulateProjectCardholders();
 
                 // Loop through the List of readers to configure and start them.
                 foreach (ImpinjReader reader in readers)
@@ -217,11 +219,13 @@ namespace TG2_RFID
         {
             foreach (Tag tag in report)
             {
-                if (Project.IsTagRegistered(tag))
+                if (Project.IsTagRegistered(tag) && tag.PeakRssiInDbm > GlobalDataReader1.RSSILowPassFilter)
                 {
-                    //Console.WriteLine("Antena: {0}, EPC: {1}, RSSI: {2}", tag.AntennaPortNumber, tag.Epc.ToString(), tag.PeakRssiInDbm);
                     Project.ReadingCardholderTag(tag, sender.Name);
                     Project.ProcessCardholderData(tag, sender.Name);
+                    var individuo = Project.GetCardholder(tag.Epc.ToString());
+                    var sala = individuo.GetAmbient().GetName();
+                    Console.WriteLine("Cardholder name: {0}, EPC {1},     Ambiente {2},    {3}, Antena {4}, RSSI: {5}", individuo.GetName(), tag.Epc.ToString(), sala, sender.Name, tag.AntennaPortNumber, tag.PeakRssiInDbm);
                 }
             }
 

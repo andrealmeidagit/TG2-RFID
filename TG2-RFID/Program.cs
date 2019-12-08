@@ -45,19 +45,20 @@ using System;
 using Impinj.OctaneSdk;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using System.Threading;
 
 namespace TG2_RFID
 {
-    class GlobalDataReader1
+    class GlobalData
     {
         public static int RSSILowPassFilter = -65;
-        public static volatile int reader_1_count = 0;
-        public static volatile int reader_2_count = 0;
-        public static volatile int reader_3_count = 0;
-        public static volatile Hashtable SalaReuniao = new Hashtable();
-        public static volatile Hashtable CorredorMesas = new Hashtable();
-        public static volatile Hashtable Cadastro = new Hashtable();
+
+        public static FileHandler filehandler = new FileHandler();
+
     }
+
     class Program
     {
         // Create a collection to hold all the ImpinjReader instances.
@@ -88,9 +89,14 @@ namespace TG2_RFID
 
             //Console.WriteLine("End Test Step");
             //return;
-            
+
             try
             {
+                // Sets the output file path
+                GlobalData.filehandler.SetFileHandler();
+                GlobalData.filehandler.CreateFile();
+
+                // holds the paths to the readers
                 string hostname1 = "speedwayr-10-9f-3f.local";
                 string hostname2 = "speedwayr-10-9f-c8.local";
                 string hostname3 = "speedwayr-10-9f-bb.local";
@@ -219,58 +225,19 @@ namespace TG2_RFID
         {
             foreach (Tag tag in report)
             {
-                if (Project.IsTagRegistered(tag) && tag.PeakRssiInDbm > GlobalDataReader1.RSSILowPassFilter)
+                if (Project.IsTagRegistered(tag) && tag.PeakRssiInDbm > GlobalData.RSSILowPassFilter)
                 {
                     Project.ReadingCardholderTag(tag, sender.Name);
                     Project.ProcessCardholderData(tag, sender.Name);
                     var individuo = Project.GetCardholder(tag.Epc.ToString());
-                    var sala = individuo.GetAmbient().GetName();
-                    Console.WriteLine("Cardholder name: {0}, EPC {1},     Ambiente {2},    {3}, Antena {4}, RSSI: {5}", individuo.GetName(), tag.Epc.ToString(), sala, sender.Name, tag.AntennaPortNumber, tag.PeakRssiInDbm);
+                    GlobalData.filehandler.WriteToFile(individuo, tag.Epc.ToString(), sender.Name, tag.AntennaPortNumber);
                 }
             }
-
-
-                /* if (tag.Epc.ToString() == "E200 001B 2609 0147 0510 7BBD" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0460 7BA5" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0520 7BB1" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0450 7B99" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0380 7B85" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0910 7C5D" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0850 7C39" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0840 7C31" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0710 7C0D" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0660 7BF5" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0900 7C55" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0390 7B8D" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0780 7C25" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0720 7C01" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0600 7BD1" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 1100 7CA5" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0650 7BE9" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0790 7C2D" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 0590 7BDD" ||
-                     tag.Epc.ToString() == "E200 001B 2609 0147 1040 7C81")*/
-                //if (GlobalDataReader1.Cadastro.ContainsKey(tag.Epc.ToString()))
-                //{
-                //    string trimmedEPC = tag.Epc.ToString().Replace(" ", string.Empty);
-                //    TimeSpan deltaT = new TimeSpan(tag.LastSeenTime.LocalDateTime.Ticks - tag.FirstSeenTime.LocalDateTime.Ticks);
-
-                //    Console.WriteLine("Antena: {0}, EPC: {1}, TAGSC: {2}, RSSI: {3}, LastSeen: {4}", tag.AntennaPortNumber, trimmedEPC, tag.TagSeenCount, tag.PeakRssiInDbm, tag.LastSeenTime);
-
-                //    if (GlobalDataReader1.SalaReuniao.ContainsKey(tag.Epc.ToString()))
-                //    {
-                //        SegundaLeituraSalaReuniao(sender.Name, tag.Epc.ToString(), tag.PeakRssiInDbm);
-                //    }
-                //    else if (GlobalDataReader1.CorredorMesas.ContainsKey(tag.Epc.ToString()))
-                //    {
-                //        SegundaLeituraCorredorMesas(sender.Name, tag.Epc.ToString(), tag.PeakRssiInDbm);
-                //    }
-                //    else
-                //    {
-                //        PrimeiraLeitura(sender.Name, tag.Epc.ToString(), tag.PeakRssiInDbm);
-                //    }
-                //}
-            //}
         }
+
+
+
+
+
     }
 }

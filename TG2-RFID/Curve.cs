@@ -313,6 +313,28 @@ namespace TG2_RFID
         }
 
         /// <summary>
+        /// Getter for the index's value for Y
+        /// </summary>
+        public double GetCurveIndexY(int i)
+        {
+            if (curveData.Values.Count() > i)
+                return curveData.Values[i];
+            else
+                return 0;
+        }
+
+        /// <summary>
+        /// Getter for the index's value for X
+        /// </summary>
+        public double GetCurveIndexX(int i)
+        {
+            if (curveData.Values.Count() > i)
+                return curveData.Values[i];
+            else
+                return 0;
+        }
+
+        /// <summary>
         /// Getter the maximum value for x coordinate.
         /// </summary>
         public double GetCurveMaxX()

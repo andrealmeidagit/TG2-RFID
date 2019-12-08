@@ -48,9 +48,39 @@ namespace TG2_RFID
         protected double lastSeenRSSI;
 
         /// <summary>
-        /// Holds the current ambient in which this cardholder is.
+        /// Holds the current ambient in which this cardholder is according to the default criteria.
         /// </summary>
         protected Ambient currentAmbient;
+
+        /// <summary>
+        /// Holds the current ambient in which this cardholder is according to the last RSSI peak time criteria.
+        /// </summary>
+        protected Ambient ambPeakTimes;
+
+        /// <summary>
+        /// Holds the current ambient in which this cardholder is according to the last RSSI peak time and magnitude criteria.
+        /// </summary>
+        protected Ambient ambPeakTimeAndMag;
+
+        /// <summary>
+        /// Holds the current ambient in which this cardholder is according to the last RSSI value criteria.
+        /// </summary>
+        protected Ambient ambLastRSSI;
+
+        /// <summary>
+        /// Holds the current ambient in which this cardholder is according to the last RSSI mean criteria.
+        /// </summary>
+        protected Ambient ambRSSIMean;
+
+        /// <summary>
+        /// Holds the current ambient in which this cardholder is according to the last RSSI median criteria.
+        /// </summary>
+        protected Ambient ambRSSIMedian;
+
+        /// <summary>
+        /// Holds the current ambient in which this cardholder is according to the Doppler Effect criteria.
+        /// </summary>
+        protected Ambient ambDopplerEffect;
 
         /// <summary>
         /// Holds a map of curves per antenna in which this cardholder was seen
@@ -200,7 +230,7 @@ namespace TG2_RFID
             }
 
             var diffTime = lastSeenTime - firstSeenTime;
-            double readingTime = (double)(diffTime.TotalMilliseconds);//(double)(lastSeenTime.Date.Millisecond) - (double)(firstSeenTime.Date.Millisecond);
+            double readingTime = (double)(diffTime.TotalMilliseconds);
 
             var tupleAntenna = Tuple.Create<string, ushort>(senderName, tag.AntennaPortNumber);
 
@@ -233,13 +263,6 @@ namespace TG2_RFID
             {
                 var dopplerCurve = curvesDoplerFrequencyReadingsDictionary[tupleAntenna];
                 dopplerCurve.AddPointWithAvgFilter(readingTime, tag.RfDopplerFrequency);
-                //Console.WriteLine("SIZE DOPCURVE {0} TIME {1}", dopplerCurve.getSize(), readingTime);
-                if (tupleAntenna.Item2 == 1)
-                {
-                    //dopplerCurve.printCurveInConsole();
-                    //dopplerCurve.printCurveLastValue();
-                    //Console.WriteLine("DOPVAL {0} TIME {1}", tag.RfDopplerFrequency, readingTime);
-                }
             }
             catch (Exception e)
             {
@@ -259,10 +282,28 @@ namespace TG2_RFID
         /// <summary>
         /// Getter Ambiente
         /// </summary>
+        public Ambient GetCurAmbient()
+        {
+            return currentAmbient;
+        }
+
+        /// <summary>
+        /// Setter Ambiente
+        /// </summary>
+        public void SetAmbient(Ambient ambientGuess)
+        {
+            ambPeakTimes = ambientGuess;
+        }
+
+        /// <summary>
+        /// Getter Ambiente
+        /// </summary>
         public Ambient GetAmbient()
         {
             return currentAmbient;
         }
+
+
 
     }
 }

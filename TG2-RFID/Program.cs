@@ -53,7 +53,7 @@ namespace TG2_RFID
 {
     class GlobalData
     {
-        public static int RSSILowPassFilter = -65;
+        public static int RSSILowPassFilter = -60;
 
         public static FileHandler filehandler = new FileHandler();
 
@@ -230,7 +230,15 @@ namespace TG2_RFID
                     Project.ReadingCardholderTag(tag, sender.Name);
                     Project.ProcessCardholderData(tag, sender.Name);
                     var individuo = Project.GetCardholder(tag.Epc.ToString());
+
+                    // Writes data to file
                     GlobalData.filehandler.WriteToFile(individuo, tag.Epc.ToString(), sender.Name, tag.AntennaPortNumber);
+
+                    // Debug
+                    var sala = individuo.GetCurAmbient().GetName();
+                    Console.WriteLine("Cardholder name: {0}, EPC {1},     Ambiente {2},    {3}, Antena {4}, RSSI: {5}", individuo.GetName(), tag.Epc.ToString(), sala, sender.Name, tag.AntennaPortNumber, tag.PeakRssiInDbm);
+                    // Debug.end
+
                 }
             }
         }

@@ -7,10 +7,6 @@ namespace TG2_RFID
 {
     public class Project
     {
-        /// <summary>
-        /// The RSSI low pass filter value.
-        /// </summary>
-        public static volatile int RSSILowPassFilter = -55;
 
         /// <summary>
         /// The map of registered people in the project.
@@ -59,7 +55,7 @@ namespace TG2_RFID
             registerTransition.Add(antenna, transition);
         }
 
-        public static void registerNewCardholder(string EPC, string name)
+        public static void RegisterNewCardholder(string EPC, string name)
         {
             var cardholder = new Cardholder(name);
             Project.registeredPeople.Add(EPC, cardholder);
@@ -92,7 +88,7 @@ namespace TG2_RFID
             Project.registeredPeople.Clear();
             /*Project.registeredPeople.Add("E200 001B 2609 0147 0510 7BBD", new Cardholder("Joao"));
             Project.registeredPeople.Add("E200 001B 2609 0147 0460 7BA5", new Cardholder("Maria"));*/
-            Project.registerNewCardholder("E200 001B 2609 0147 0520 7BB1", "Jose");
+            Project.RegisterNewCardholder("E200 001B 2609 0147 0520 7BB1", "Jose");
             /*Project.registeredPeople.Add("E200 001B 2609 0147 0450 7B99", new Cardholder("Arlindo"));
             Project.registeredPeople.Add("E200 001B 2609 0147 0380 7B85", new Cardholder("Manoel"));
             Project.registeredPeople.Add("E200 001B 2609 0147 0910 7C5D", new Cardholder("Carla"));
@@ -124,7 +120,7 @@ namespace TG2_RFID
         }
 
         /// <summary>
-        /// TODO
+        /// Gets cardholder from tag
         /// </summary>
         public static void ReadingCardholderTag(Tag tag, String senderName)
         {
@@ -149,23 +145,55 @@ namespace TG2_RFID
             var dopplerCurveLastAntenna = person.GetDopplerEffectCurve(antennaPersonAt);
             var dopplerCurveOtherAntenna = person.GetDopplerEffectCurve(otherAntenna);
 
-            //compare powerCurve peaks
+
+            /*
+             * Compare Peaks Time
+             */
+
+            /*
+             * Compare Peaks Time and value
+             */
+
+            /*
+             * Compare last value RSSI
+             */
+
+            /*
+             * Compare mean / median
+             */
+
+            /*
+             * Compare Doppler transition point
+             */
+
+            // Compare powerCurve peaks
             var peakListLast = powerCurveLastAntenna.CalculatePeaks();
             var peakListOther = powerCurveOtherAntenna.CalculatePeaks();
             var maxLastAntenna = powerCurveLastAntenna.GetCurveMaxPoint();
             var maxOtherAntenna = powerCurveOtherAntenna.GetCurveMaxPoint();
 
-            if (powerCurveLastAntenna.GetSize() > 4 ||
-                powerCurveLastAntenna.GetSize() > 4)
+
+            /*
+             * Compare Peaks Time and value
+             */
+            if ((peakListLast.Count > 0 && peakListOther.Count > 0 && (peakListLast[peakListLast.Count - 1].Item1 > peakListOther[peakListOther.Count - 1].Item1))
+                || (peakListLast.Count == 0 || peakListOther.Count == 0 && maxLastAntenna.Item1 > maxOtherAntenna.Item1 && maxLastAntenna.Item2 > maxOtherAntenna.Item2))
             {
-                int TESTANDO = 0;
+                // sets ambient to cardholder
+                registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
+                cardholder.SetCurrAmbient(transition.GetAmb4GivenAntenna(antennaPersonAt));
+            }
+            else
+            {
+                // sets ambient to cardholder
+                registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
+                cardholder.SetCurrAmbient(transition.GetAmb4GivenAntenna(otherAntenna));
             }
 
-            if ((peakListLast.Count > 0 && peakListOther.Count > 0 && (peakListLast[peakListLast.Count - 1].Item1 > peakListOther[peakListOther.Count - 1].Item1))
-                || (peakListLast.Count == 0 || peakListOther.Count == 0 && maxLastAntenna.Item1 > maxOtherAntenna.Item1))
-            //if (maxLastAntenna.Item1 > maxOtherAntenna.Item1)
-            //if (powerCurveLastAntenna.CalculateMeanY() > powerCurveOtherAntenna.CalculateMeanY())
-            //if (powerCurveLastAntenna.GetCurveLastValue() > powerCurveOtherAntenna.GetCurveLastValue())
+            /*
+			 * Compare last value RSSI
+			 */
+            if (powerCurveLastAntenna.GetCurveLastValue() > powerCurveOtherAntenna.GetCurveLastValue())
             {
                 //sets ambient to cardholder
                 registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
@@ -177,6 +205,56 @@ namespace TG2_RFID
                 registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
                 cardholder.SetCurrAmbient(transition.GetAmb4GivenAntenna(otherAntenna));
             }
+
+            /*
+			 * Compare mean / median
+			 */
+            if (powerCurveLastAntenna.CalculateMeanY() > powerCurveOtherAntenna.CalculateMeanY())
+            {
+                //sets ambient to cardholder
+                registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
+                cardholder.SetCurrAmbient(transition.GetAmb4GivenAntenna(antennaPersonAt));
+            }
+            else
+            {
+                //sets ambient to cardholder
+                registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
+                cardholder.SetCurrAmbient(transition.GetAmb4GivenAntenna(otherAntenna));
+            }
+
+            /*
+			 * Compare Doppler transition point
+			 */
+
+
+
+
+
+
+
+
+            //if (powerCurveLastAntenna.GetSize() > 4 ||
+            //    powerCurveLastAntenna.GetSize() > 4)
+            //{
+            //    int TESTANDO = 0;
+            //}
+
+            //if ((peakListLast.Count > 0 && peakListOther.Count > 0 && (peakListLast[peakListLast.Count - 1].Item1 > peakListOther[peakListOther.Count - 1].Item1))
+            //    || (peakListLast.Count == 0 || peakListOther.Count == 0 && maxLastAntenna.Item1 > maxOtherAntenna.Item1))
+            //if (maxLastAntenna.Item1 > maxOtherAntenna.Item1)
+            //if (powerCurveLastAntenna.CalculateMeanY() > powerCurveOtherAntenna.CalculateMeanY())
+            //if (powerCurveLastAntenna.GetCurveLastValue() > powerCurveOtherAntenna.GetCurveLastValue())
+            //{
+            //    sets ambient to cardholder
+            //    registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
+            //    cardholder.SetCurrAmbient(transition.GetAmb4GivenAntenna(antennaPersonAt));
+            //}
+            //else
+            //{
+            //    sets ambient to cardholder
+            //    registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
+            //    cardholder.SetCurrAmbient(transition.GetAmb4GivenAntenna(otherAntenna));
+            //}
         }
 
         /// <summary>
@@ -206,6 +284,10 @@ namespace TG2_RFID
             registeredPeople.TryGetValue(tag, out Cardholder cardholderObj);
             return cardholderObj;
         }
+
+
+
+
 
 
     }

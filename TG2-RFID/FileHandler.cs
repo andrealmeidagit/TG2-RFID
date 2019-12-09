@@ -18,8 +18,6 @@ namespace TG2_RFID
 
         public void WriteToFile(Cardholder person, string epc, string reader, ushort ant)
         {
-            var sala = person.GetCurAmbient().GetName();
-
             // Set File parameters
             string csvSeperator = ";";
             StringBuilder streamOutput = new StringBuilder();
@@ -51,7 +49,7 @@ namespace TG2_RFID
                                   ;
 
             string[][] dataOutput = new string[][]{
-                                    new string[]{person.GetName(), epc, sala, reader, ant.ToString(), DateTime.Now.ToString("dd/MM/yyyy; HH:mm:ss:ffff"), ";", strRSSIcurve, strDopplercurve }
+                                    new string[]{person.GetName(), epc, reader, ant.ToString(), DateTime.Now.ToString("dd/MM/yyyy; HH:mm:ss:ffff"), ";", strRSSIcurve, strDopplercurve, ";", person.GetAmbient(0).GetName(), person.GetAmbient(2).GetName(), person.GetAmbient(3).GetName(), person.GetAmbient(4).GetName(), person.GetAmbient(5).GetName(), person.GetAmbient(6).GetName() }
                                     };
             int length = dataOutput.GetLength(0);
             for (int i = 0; i < length; i++)
@@ -68,7 +66,7 @@ namespace TG2_RFID
             StringBuilder streamOutput = new StringBuilder();
 
             string[][] dataOutput = new string[][]{
-                                    new string[]{"Nome", "EPC", "Ambiente", "Leitora", "Antena", "Data", "Horario", ";", "Curva RSSI", ";;;;;;;;",";" , "Curva Doppler"}
+                                    new string[]{"Nome", "EPC", "Leitora", "Antena", "Data", "Horario", ";", "Curva RSSI", ";;;;;;;;",";" , "Curva Doppler", ";;;;;;;;",";", ";", "Ambiente-LAST-RSSI-PEAK-TIME", "Ambiente-RSSI-Last-value", "Ambiente-RSSI-Mean", "Ambiente-RSSI-Median", "Ambiente-Doppler" , "DopplerAndRSSI"}
                                     };
             int length = dataOutput.GetLength(0);
             for (int i = 0; i < length; i++)

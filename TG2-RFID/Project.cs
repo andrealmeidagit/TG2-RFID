@@ -174,21 +174,38 @@ namespace TG2_RFID
 
 
             /*
-             * Compare Peaks Time and value
+             * Compare RSSI Peaks Time
              */
             if ((peakListLast.Count > 0 && peakListOther.Count > 0 && (peakListLast[peakListLast.Count - 1].Item1 > peakListOther[peakListOther.Count - 1].Item1))
                 || (peakListLast.Count == 0 || peakListOther.Count == 0 && maxLastAntenna.Item1 > maxOtherAntenna.Item1 && maxLastAntenna.Item2 > maxOtherAntenna.Item2))
             {
                 // sets ambient to cardholder
                 registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
-                cardholder.SetCurrAmbient(transition.GetAmb4GivenAntenna(antennaPersonAt));
+                cardholder.SetAmbient(transition.GetAmb4GivenAntenna(antennaPersonAt), 0);
             }
             else
             {
                 // sets ambient to cardholder
                 registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
-                cardholder.SetCurrAmbient(transition.GetAmb4GivenAntenna(otherAntenna));
+                cardholder.SetAmbient(transition.GetAmb4GivenAntenna(otherAntenna), 0);
             }
+
+            /*
+             * Compare Peaks Time and value
+             */
+            //if ((peakListLast.Count > 0 && peakListOther.Count > 0 && (peakListLast[peakListLast.Count - 1].Item2 > peakListOther[peakListOther.Count - 1].Item2))
+            //    || (peakListLast.Count == 0 || peakListOther.Count == 0 && maxLastAntenna.Item1 > maxOtherAntenna.Item1 && maxLastAntenna.Item2 > maxOtherAntenna.Item2))
+            //{
+            //    // sets ambient to cardholder
+            //    registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
+            //    cardholder.SetAmbient(transition.GetAmb4GivenAntenna(antennaPersonAt),1);
+            //}
+            //else
+            //{
+            //    // sets ambient to cardholder
+            //    registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
+            //    cardholder.SetAmbient(transition.GetAmb4GivenAntenna(otherAntenna),1);
+            //}
 
             /*
 			 * Compare last value RSSI
@@ -197,35 +214,102 @@ namespace TG2_RFID
             {
                 //sets ambient to cardholder
                 registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
-                cardholder.SetCurrAmbient(transition.GetAmb4GivenAntenna(antennaPersonAt));
+                cardholder.SetAmbient(transition.GetAmb4GivenAntenna(antennaPersonAt),2);
             }
             else
             {
                 //sets ambient to cardholder
                 registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
-                cardholder.SetCurrAmbient(transition.GetAmb4GivenAntenna(otherAntenna));
+                cardholder.SetAmbient(transition.GetAmb4GivenAntenna(otherAntenna),2);
             }
 
             /*
-			 * Compare mean / median
+			 * Compare mean
 			 */
             if (powerCurveLastAntenna.CalculateMeanY() > powerCurveOtherAntenna.CalculateMeanY())
             {
                 //sets ambient to cardholder
                 registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
-                cardholder.SetCurrAmbient(transition.GetAmb4GivenAntenna(antennaPersonAt));
+                cardholder.SetAmbient(transition.GetAmb4GivenAntenna(antennaPersonAt),3);
             }
             else
             {
                 //sets ambient to cardholder
                 registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
-                cardholder.SetCurrAmbient(transition.GetAmb4GivenAntenna(otherAntenna));
+                cardholder.SetAmbient(transition.GetAmb4GivenAntenna(otherAntenna),3);
+            }
+
+            /*
+			 * Compare meadian
+			 */
+            if (powerCurveLastAntenna.GetMedianY() > powerCurveOtherAntenna.GetMedianY())
+            {
+                //sets ambient to cardholder
+                registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
+                cardholder.SetAmbient(transition.GetAmb4GivenAntenna(antennaPersonAt), 4);
+            }
+            else
+            {
+                //sets ambient to cardholder
+                registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
+                cardholder.SetAmbient(transition.GetAmb4GivenAntenna(otherAntenna), 4);
             }
 
             /*
 			 * Compare Doppler transition point
 			 */
+            if (!Double.IsNaN(dopplerCurveLastAntenna.CalculateCrossingPoint().Item1) && 
+                !Double.IsNaN(dopplerCurveOtherAntenna.CalculateCrossingPoint().Item1) &&
+                dopplerCurveLastAntenna.CalculateCrossingPoint().Item1 > dopplerCurveOtherAntenna.CalculateCrossingPoint().Item1)
+            {
+                //sets ambient to cardholder
+                registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
+                cardholder.SetAmbient(transition.GetAmb4GivenAntenna(antennaPersonAt), 5);
+            } else if (!Double.IsNaN(dopplerCurveLastAntenna.CalculateCrossingPoint().Item1) &&
+                !Double.IsNaN(dopplerCurveOtherAntenna.CalculateCrossingPoint().Item1) &&
+                dopplerCurveLastAntenna.CalculateCrossingPoint().Item1 < dopplerCurveOtherAntenna.CalculateCrossingPoint().Item1)
+            {
+                //sets ambient to cardholder
+                registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
+                cardholder.SetAmbient(transition.GetAmb4GivenAntenna(otherAntenna), 5);
+            } else
+            {
+                //if ((peakListLast.Count > 0 && peakListOther.Count > 0 && (peakListLast[peakListLast.Count - 1].Item1 > peakListOther[peakListOther.Count - 1].Item1))
+                //|| (peakListLast.Count == 0 || peakListOther.Count == 0 && maxLastAntenna.Item1 > maxOtherAntenna.Item1 && maxLastAntenna.Item2 > maxOtherAntenna.Item2))
+                //{
+                //    // sets ambient to cardholder
+                //    registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
+                //    cardholder.SetAmbient(transition.GetAmb4GivenAntenna(antennaPersonAt), 5);
+                //}
+                //else
+                //{
+                //    // sets ambient to cardholder
+                //    registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
+                //    cardholder.SetAmbient(transition.GetAmb4GivenAntenna(otherAntenna), 5);
+                //}
+            }
 
+
+            /*
+			 * Compare Doppler transition point and RSSI peaks
+			 */
+
+            if ((peakListLast.Count > 0 && peakListOther.Count > 0 && (peakListLast[peakListLast.Count - 1].Item1 > peakListOther[peakListOther.Count - 1].Item1) &&
+                (!Double.IsNaN(dopplerCurveLastAntenna.CalculateCrossingPoint().Item1) &&
+                !Double.IsNaN(dopplerCurveOtherAntenna.CalculateCrossingPoint().Item1) &&
+                dopplerCurveLastAntenna.CalculateCrossingPoint().Item1 > dopplerCurveOtherAntenna.CalculateCrossingPoint().Item1))
+                 || (peakListLast.Count == 0 || peakListOther.Count == 0 && maxLastAntenna.Item1 > maxOtherAntenna.Item1 && maxLastAntenna.Item2 > maxOtherAntenna.Item2))
+            {
+                // sets ambient to cardholder
+                registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
+                cardholder.SetAmbient(transition.GetAmb4GivenAntenna(antennaPersonAt), 6);
+            }
+            else
+            {
+                // sets ambient to cardholder
+                registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
+                cardholder.SetAmbient(transition.GetAmb4GivenAntenna(otherAntenna), 6);
+            }
 
 
 

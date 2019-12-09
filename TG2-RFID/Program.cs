@@ -105,13 +105,12 @@ namespace TG2_RFID
                 readers.Add(new ImpinjReader(hostname1, "Reader #1"));
                 readers.Add(new ImpinjReader(hostname2, "Reader #2"));
                 readers.Add(new ImpinjReader(hostname3, "Reader #3"));
-
-
+                
                 //Create map of rooms
-                Project.RegisterNewAmbient(0, new Ambient("Outside(0)"));
-                Project.RegisterNewAmbient(1, new Ambient("Salona(1)"));
-                Project.RegisterNewAmbient(2, new Ambient("Reuniao(2)"));
-                Project.RegisterNewAmbient(3, new Ambient("Baias(3)"));
+                Project.RegisterNewAmbient(0, new Ambient("Area_Externa(0)"));
+                Project.RegisterNewAmbient(1, new Ambient("Sala_Principal(1)"));
+                Project.RegisterNewAmbient(2, new Ambient("Sala_Reuniao(2)"));
+                Project.RegisterNewAmbient(3, new Ambient("Corredor_Baias(3)"));
 
                 //Create map of transitions
                 Transition transition1 = new Transition(Project.GetAmbientInstance(0), "Reader #1", 1, Project.GetAmbientInstance(1), "Reader #1", 2);
@@ -145,6 +144,14 @@ namespace TG2_RFID
                     settings.Report.IncludeSeenCount = true;
                     settings.Report.IncludeDopplerFrequency = true;
                     settings.Report.IncludePeakRssi = true;
+                    // Send a tag report for every tag read
+                    settings.Report.Mode = ReportMode.Individual;// BatchAfterStop;
+
+                    // Reading tags for 1 seconds every 0.25 second
+                    //settings.AutoStart.Mode = AutoStartMode.Periodic;
+                    //settings.AutoStart.PeriodInMs = 500;
+                    //settings.AutoStop.Mode = AutoStopMode.Duration;
+                    //settings.AutoStop.DurationInMs = 500;
 
                     //Settings de antena
                     settings.Antennas.DisableAll();
@@ -162,15 +169,6 @@ namespace TG2_RFID
                     //settings.Antennas.GetAntenna(2).TxPowerInDbm = 30.0;
                     //settings.Antennas.GetAntenna(2).RxSensitivityInDbm = -70.0;
                     // ...
-
-                    // Send a tag report every time the reader stops (period is over).
-                    settings.Report.Mode = ReportMode.Individual;// BatchAfterStop;
-
-                    // Reading tags for 1 seconds every 0.25 second
-                    //settings.AutoStart.Mode = AutoStartMode.Periodic;
-                    //settings.AutoStart.PeriodInMs = 500;
-                    //settings.AutoStop.Mode = AutoStopMode.Duration;
-                    //settings.AutoStop.DurationInMs = 500;
 
 
                     settings.ReaderMode = ReaderMode.DenseReaderM8;
@@ -235,8 +233,7 @@ namespace TG2_RFID
                     GlobalData.filehandler.WriteToFile(individuo, tag.Epc.ToString(), sender.Name, tag.AntennaPortNumber);
 
                     // Debug
-                    var sala = individuo.GetCurAmbient().GetName();
-                    Console.WriteLine("Cardholder name: {0}, EPC {1},     Ambiente {2},    {3}, Antena {4}, RSSI: {5}", individuo.GetName(), tag.Epc.ToString(), sala, sender.Name, tag.AntennaPortNumber, tag.PeakRssiInDbm);
+                    Console.WriteLine("RSSI: {0}, Doppler: {1}, 0:{2}, 2:{3}, 3:{4}, 4:{5}, 5:{6}, 6:{7}", tag.PeakRssiInDbm, tag.RfDopplerFrequency, individuo.GetAmbient(0).GetName(), individuo.GetAmbient(2).GetName(), individuo.GetAmbient(3).GetName(), individuo.GetAmbient(4).GetName(), individuo.GetAmbient(5).GetName(), individuo.GetAmbient(6).GetName());
                     // Debug.end
 
                 }

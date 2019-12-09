@@ -12,10 +12,10 @@ namespace TG2_RFID
         protected string name;
 
         /// <summary>
-        /// Holds the total thermal capacity necessary to increase/decrease the heat in this room. 
+        /// Holds the total thermal load. 
         /// A value that is proportional to the number of people in the room.
         /// </summary>  
-        protected int totalThermalCapacity;
+        protected int totalThermalLoad;
 
         /// <summary>
         /// Holds a map of people inside of room using their tag's EPC as key.
@@ -47,9 +47,9 @@ namespace TG2_RFID
         /// <summary>
         /// Getter for the total thermal capacity in this room.
         /// </summary>
-        public int GetTotalThermalCapacity()
+        public int GetTotalThermalLoad()
         {
-            return totalThermalCapacity;
+            return totalThermalLoad;
         }
 
         /// <summary>

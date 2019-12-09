@@ -83,6 +83,11 @@ namespace TG2_RFID
         protected Ambient ambDopplerEffect;
 
         /// <summary>
+        /// Holds the current ambient in which this cardholder is according to the Doppler Effect and RSSI criteria.
+        /// </summary>
+        protected Ambient ambDopplerAndRSSI;
+
+        /// <summary>
         /// Holds a map of curves per antenna in which this cardholder was seen
         /// holding the history of RSSI power per time.
         /// </summary>
@@ -104,6 +109,14 @@ namespace TG2_RFID
             wasInitialized = false;
             curvesPowerReadingsDictionary = new Dictionary<Tuple<string, ushort>, Curve>();
             curvesDoplerFrequencyReadingsDictionary = new Dictionary<Tuple<string, ushort>, Curve>();
+            ambDopplerAndRSSI = (Project.GetAmbientInstance(0));
+            ambDopplerEffect = (Project.GetAmbientInstance(0));
+            ambLastRSSI = (Project.GetAmbientInstance(0));
+            ambPeakTimeAndMag = (Project.GetAmbientInstance(0));
+            ambPeakTimes = (Project.GetAmbientInstance(0));
+            ambRSSIMean = (Project.GetAmbientInstance(0));
+            ambRSSIMedian = (Project.GetAmbientInstance(0));
+
         }
 
         /// <summary>
@@ -117,6 +130,14 @@ namespace TG2_RFID
             wasInitialized = false;
             curvesPowerReadingsDictionary = new Dictionary<Tuple<string, ushort>, Curve>();
             curvesDoplerFrequencyReadingsDictionary = new Dictionary<Tuple<string, ushort>, Curve>();
+            ambDopplerAndRSSI = (Project.GetAmbientInstance(0));
+            ambDopplerEffect = (Project.GetAmbientInstance(0));
+            ambLastRSSI = (Project.GetAmbientInstance(0));
+            ambPeakTimeAndMag = (Project.GetAmbientInstance(0));
+            ambPeakTimes = (Project.GetAmbientInstance(0));
+            ambRSSIMean = (Project.GetAmbientInstance(0));
+            ambRSSIMedian = (Project.GetAmbientInstance(0));
+
         }
 
         /// <summary>
@@ -131,6 +152,13 @@ namespace TG2_RFID
             wasInitialized = false;
             curvesPowerReadingsDictionary = new Dictionary<Tuple<string, ushort>, Curve>();
             curvesDoplerFrequencyReadingsDictionary = new Dictionary<Tuple<string, ushort>, Curve>();
+            ambDopplerAndRSSI = (Project.GetAmbientInstance(0));
+            ambDopplerEffect = (Project.GetAmbientInstance(0));
+            ambLastRSSI = (Project.GetAmbientInstance(0));
+            ambPeakTimeAndMag = (Project.GetAmbientInstance(0));
+            ambPeakTimes = (Project.GetAmbientInstance(0));
+            ambRSSIMean = (Project.GetAmbientInstance(0));
+            ambRSSIMedian = (Project.GetAmbientInstance(0));
         }
 
         /// <summary>
@@ -262,7 +290,15 @@ namespace TG2_RFID
             try
             {
                 var dopplerCurve = curvesDoplerFrequencyReadingsDictionary[tupleAntenna];
-                dopplerCurve.AddPointWithAvgFilter(readingTime, tag.RfDopplerFrequency);
+                if (Math.Abs(tag.RfDopplerFrequency) > 1)
+                {
+                    dopplerCurve.AddPoint(readingTime, tag.RfDopplerFrequency);
+                }
+                else
+                {
+                    //dopplerCurve.AddPoint(readingTime, dopplerCurve.GetCurveLastValue());
+                }
+                    
             }
             catch (Exception e)
             {
@@ -289,18 +325,65 @@ namespace TG2_RFID
 
         /// <summary>
         /// Setter Ambiente
+        /// TODO
         /// </summary>
-        public void SetAmbient(Ambient ambientGuess)
+        public void SetAmbient(Ambient ambientGuess, int i)
         {
-            ambPeakTimes = ambientGuess;
+            switch (i)
+            {
+                case 0:
+                    ambPeakTimes = ambientGuess;
+                    break;
+                case 1:
+                    ambPeakTimeAndMag = ambientGuess;
+                    break;
+                case 2:
+                    ambLastRSSI = ambientGuess;
+                    break;
+                case 3:
+                    ambRSSIMean = ambientGuess;
+                    break;
+                case 4:
+                    ambRSSIMedian = ambientGuess;
+                    break;
+                case 5:
+                    ambDopplerEffect = ambientGuess;
+                    break;
+                case 6:
+                    ambDopplerAndRSSI = ambientGuess;
+                    break;
+            }
+            
+            
+            
+            
         }
 
         /// <summary>
         /// Getter Ambiente
+        /// TODO
         /// </summary>
-        public Ambient GetAmbient()
+        public Ambient GetAmbient(int i)
         {
-            return currentAmbient;
+            switch (i)
+            {
+                case 0:
+                    return ambPeakTimes;
+                case 1:
+                    return ambPeakTimeAndMag;
+                case 2:
+                    return ambLastRSSI;
+                case 3:
+                    return ambRSSIMean;
+                case 4:
+                    return ambRSSIMedian;
+                case 5:
+                    return ambDopplerEffect;
+                case 6:
+                    return ambDopplerAndRSSI;
+                default:
+                    return currentAmbient;
+            }
         }
 
 

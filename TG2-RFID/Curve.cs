@@ -398,7 +398,7 @@ namespace TG2_RFID
         public double GetMedianY()
         {
             double medianY = 0;
-            if (curveData.Count != 0)
+            if (curveData.Count > 2)
             {
                 var values = curveData.Values;
                 List<double> list = new List<double>(values);
@@ -451,12 +451,16 @@ namespace TG2_RFID
                     isFirstSignPositive = y > 0 ? true : false;
                     continue;
                 }
-                if ((y < 0 && isFirstSignPositive) || (y > 0 && !isFirstSignPositive))
+                //if ((y < 0 && isFirstSignPositive) || (y > 0 && !isFirstSignPositive))
+                if ((y > 0 && !isFirstSignPositive))
                 {
-                    x += curveData.Keys[i + 1];
-                    x *= 0.5;
-                    y += curveData[curveData.Keys[i + 1]];
-                    y *= 0.5;
+                    if (i < curveData.Count - 2)
+                    {
+                        x += curveData.Keys[i + 1];
+                        x *= 0.5;
+                        y += curveData[curveData.Keys[i + 1]];
+                        y *= 0.5;
+                    }
                     crossingPointY = x;
                     crossingPointX = y;
                     break;

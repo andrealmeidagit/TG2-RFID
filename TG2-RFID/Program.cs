@@ -41,6 +41,8 @@
 10. MISCELLANEOUS. This Agreement will be governed by the laws of the State of Washington, U.S.A without reference to conflict of law principles. All disputes arising out of or related to it, will be subject to the exclusive jurisdiction of the state and federal courts located in King County, Washington, and the parties agree and submit to the personal and exclusive jurisdiction and venue of these courts. Licensee will not assign this Agreement, directly or indirectly, by operation of law or otherwise, without the prior written consent of Impinj. This Agreement (and any applicable nondisclosure agreement) is the entire agreement between the parties relating to the Software Tools. No waiver or modification of this Agreement will be valid unless contained in a writing signed by each party.
 */
 
+#define DEBUG
+
 using System;
 using Impinj.OctaneSdk;
 using System.Collections;
@@ -56,7 +58,6 @@ namespace TG2_RFID
         public static int RSSILowPassFilter = -60;
 
         public static FileHandler filehandler = new FileHandler();
-
     }
 
     class Program
@@ -188,8 +189,23 @@ namespace TG2_RFID
                 }
 
                 // Wait for the user to press enter.
-                Console.WriteLine("Press enter to exit.");
-                Console.ReadKey();
+                //Console.WriteLine("Press enter to exit.");
+                //Console.ReadKey();
+                while(true)
+                {
+                    Console.WriteLine("Press 0, 1, 2, and 3 to set debuggin cardholder ambient and anything else to exit.");
+                    var stringConsole = Console.ReadKey().KeyChar;
+                    var aux = Convert.ToInt32(stringConsole) - 48;
+                    if (Project.realAmbient <= 3 && Project.realAmbient >= 0)
+                    {
+                        Project.realAmbient = (ushort)(aux);
+                    }
+                    else
+                    {
+                        Project.realAmbient = 0;
+                        break;
+                    }
+                }
 
                 // Stop all the readers and disconnect from them.
                 foreach (ImpinjReader reader in readers)
@@ -212,6 +228,8 @@ namespace TG2_RFID
                 // Handle other .NET errors.
                 Console.WriteLine("Exception : {0}", e.Message);
             }
+
+
             // Wait for the user to press enter.
             Console.WriteLine("Press enter to exit.");
             Console.ReadKey();
@@ -223,7 +241,7 @@ namespace TG2_RFID
         {
             foreach (Tag tag in report)
             {
-                if (Project.IsTagRegistered(tag) && tag.PeakRssiInDbm > GlobalData.RSSILowPassFilter)
+                if (Project.IsTagRegistered(tag) && tag.PeakRssiInDbm > GlobalData.RSSILowPassFilter && Math.Abs(tag.RfDopplerFrequency) > 0.5 )
                 {
                     Project.ReadingCardholderTag(tag, sender.Name);
                     Project.ProcessCardholderData(tag, sender.Name);
@@ -233,8 +251,9 @@ namespace TG2_RFID
                     GlobalData.filehandler.WriteToFile(individuo, tag.Epc.ToString(), sender.Name, tag.AntennaPortNumber);
 
                     // Debug
-                    Console.WriteLine("RSSI: {0}, Doppler: {1}, 0:{2}, 2:{3}, 3:{4}, 4:{5}, 5:{6}, 6:{7}", tag.PeakRssiInDbm, tag.RfDopplerFrequency, individuo.GetAmbient(0).GetName(), individuo.GetAmbient(2).GetName(), individuo.GetAmbient(3).GetName(), individuo.GetAmbient(4).GetName(), individuo.GetAmbient(5).GetName(), individuo.GetAmbient(6).GetName());
+                    // Console.WriteLine("RSSI: {0}, Doppler: {1}, 0:{2}, 2:{3}, 3:{4}, 4:{5}, 5:{6}, 6:{7}", tag.PeakRssiInDbm, tag.RfDopplerFrequency, individuo.GetAmbient(0).GetName(), individuo.GetAmbient(2).GetName(), individuo.GetAmbient(3).GetName(), individuo.GetAmbient(4).GetName(), individuo.GetAmbient(5).GetName(), individuo.GetAmbient(6).GetName());
                     // Debug.end
+                    Console.WriteLine("Current Ambient: {0},      Peaks:{1},     Dopppler:{2},    Combined:{3}", individuo.GetCurAmbient().GetName(), individuo.GetAmbient(0).GetName(), individuo.GetAmbient(5).GetName(), individuo.GetAmbient(6).GetName());
 
                 }
             }

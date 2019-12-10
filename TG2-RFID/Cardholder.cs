@@ -3,10 +3,16 @@ using System.Collections;
 using System.Collections.Generic;
 using Impinj.OctaneSdk;
 
+
+
 namespace TG2_RFID
 {
     public class Cardholder
     {
+
+        public static int RSSI_HIGHPASSFILTER = -60;
+        public static double DOPPLER_FILTER = 0.5;
+
         /// <summary>
         /// Holds the cardholder's name.
         /// </summary>
@@ -116,6 +122,7 @@ namespace TG2_RFID
             ambPeakTimes = (Project.GetAmbientInstance(0));
             ambRSSIMean = (Project.GetAmbientInstance(0));
             ambRSSIMedian = (Project.GetAmbientInstance(0));
+            currentAmbient = (Project.GetAmbientInstance(0));
 
         }
 
@@ -137,7 +144,7 @@ namespace TG2_RFID
             ambPeakTimes = (Project.GetAmbientInstance(0));
             ambRSSIMean = (Project.GetAmbientInstance(0));
             ambRSSIMedian = (Project.GetAmbientInstance(0));
-
+            currentAmbient = (Project.GetAmbientInstance(0));
         }
 
         /// <summary>
@@ -159,6 +166,7 @@ namespace TG2_RFID
             ambPeakTimes = (Project.GetAmbientInstance(0));
             ambRSSIMean = (Project.GetAmbientInstance(0));
             ambRSSIMedian = (Project.GetAmbientInstance(0));
+            currentAmbient = (Project.GetAmbientInstance(0));
         }
 
         /// <summary>
@@ -267,7 +275,10 @@ namespace TG2_RFID
                 curvesPowerReadingsDictionary.Add(tupleAntenna, new Curve());
             }
             var powerCurve = curvesPowerReadingsDictionary[tupleAntenna];
-            powerCurve.AddPointWithAvgFilter(readingTime, tag.PeakRssiInDbm);
+            if (tag.PeakRssiInDbm > RSSI_HIGHPASSFILTER)
+            {
+                powerCurve.AddPointWithAvgFilter(readingTime, tag.PeakRssiInDbm);
+            }
             // foreach (var antenna in curvesPowerReadingsDictionary.Keys)
             //{
             //    cnt++;
@@ -290,7 +301,7 @@ namespace TG2_RFID
             try
             {
                 var dopplerCurve = curvesDoplerFrequencyReadingsDictionary[tupleAntenna];
-                if (Math.Abs(tag.RfDopplerFrequency) > 1)
+                if (Math.Abs(tag.RfDopplerFrequency) > DOPPLER_FILTER)
                 {
                     dopplerCurve.AddPoint(readingTime, tag.RfDopplerFrequency);
                 }
@@ -312,6 +323,10 @@ namespace TG2_RFID
         /// </summary>
         public void SetCurrAmbient(Ambient currAmb)
         {
+            if (currAmb == null)
+            {
+                return;
+            }
             currentAmbient = currAmb;
         }
 
@@ -353,10 +368,6 @@ namespace TG2_RFID
                     ambDopplerAndRSSI = ambientGuess;
                     break;
             }
-            
-            
-            
-            
         }
 
         /// <summary>

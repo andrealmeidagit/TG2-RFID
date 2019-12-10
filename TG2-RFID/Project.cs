@@ -3,10 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using Impinj.OctaneSdk;
 
+
 namespace TG2_RFID
 {
     public class Project
     {
+        public static ushort realAmbient = 0;
 
         /// <summary>
         /// The map of registered people in the project.
@@ -129,22 +131,13 @@ namespace TG2_RFID
             cardholder.ReadingCardholderTag(tag, senderName);
         }
 
-
-        // TODO
-        // Aqui vamos processar a curva já populada!
-        // Processa o cardholder data
-        public static void ProcessCardholderData(Tag tag, string senderName)
+        public static void ProcessDataGiveTransition(Transition transition, Tuple<string, ushort> antennaPersonAt, Cardholder person, Tag tag, string senderName)
         {
-            //get curves
-            registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder person);
-            var antennaPersonAt = Tuple.Create<string, ushort>(senderName, tag.AntennaPortNumber);
-            var transition = Project.GetTransitionInstance(antennaPersonAt);
             var otherAntenna = transition.GetOtherAntenna(antennaPersonAt);
             var powerCurveLastAntenna = person.GetPowerCurve(antennaPersonAt);
             var powerCurveOtherAntenna = person.GetPowerCurve(otherAntenna);
             var dopplerCurveLastAntenna = person.GetDopplerEffectCurve(antennaPersonAt);
             var dopplerCurveOtherAntenna = person.GetDopplerEffectCurve(otherAntenna);
-
 
             /*
              * Compare Peaks Time
@@ -176,8 +169,7 @@ namespace TG2_RFID
             /*
              * Compare RSSI Peaks Time
              */
-            if ((peakListLast.Count > 0 && peakListOther.Count > 0 && (peakListLast[peakListLast.Count - 1].Item1 > peakListOther[peakListOther.Count - 1].Item1))
-                || (peakListLast.Count == 0 || peakListOther.Count == 0 && maxLastAntenna.Item1 > maxOtherAntenna.Item1 && maxLastAntenna.Item2 > maxOtherAntenna.Item2))
+            if (powerCurveLastAntenna.CompareCurveLastPeak(powerCurveOtherAntenna))
             {
                 // sets ambient to cardholder
                 registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
@@ -210,39 +202,39 @@ namespace TG2_RFID
             /*
 			 * Compare last value RSSI
 			 */
-            if (powerCurveLastAntenna.GetCurveLastValue() > powerCurveOtherAntenna.GetCurveLastValue())
+            if (powerCurveLastAntenna.CompareCurveLastPeak(powerCurveOtherAntenna))
             {
                 //sets ambient to cardholder
                 registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
-                cardholder.SetAmbient(transition.GetAmb4GivenAntenna(antennaPersonAt),2);
+                cardholder.SetAmbient(transition.GetAmb4GivenAntenna(antennaPersonAt), 2);
             }
             else
             {
                 //sets ambient to cardholder
                 registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
-                cardholder.SetAmbient(transition.GetAmb4GivenAntenna(otherAntenna),2);
+                cardholder.SetAmbient(transition.GetAmb4GivenAntenna(otherAntenna), 2);
             }
 
             /*
 			 * Compare mean
 			 */
-            if (powerCurveLastAntenna.CalculateMeanY() > powerCurveOtherAntenna.CalculateMeanY())
+            if (powerCurveLastAntenna.CompareCurveMeans(powerCurveOtherAntenna))
             {
                 //sets ambient to cardholder
                 registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
-                cardholder.SetAmbient(transition.GetAmb4GivenAntenna(antennaPersonAt),3);
+                cardholder.SetAmbient(transition.GetAmb4GivenAntenna(antennaPersonAt), 3);
             }
             else
             {
                 //sets ambient to cardholder
                 registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
-                cardholder.SetAmbient(transition.GetAmb4GivenAntenna(otherAntenna),3);
+                cardholder.SetAmbient(transition.GetAmb4GivenAntenna(otherAntenna), 3);
             }
 
             /*
 			 * Compare meadian
 			 */
-            if (powerCurveLastAntenna.GetMedianY() > powerCurveOtherAntenna.GetMedianY())
+            if (powerCurveLastAntenna.CompareCurveMedians(powerCurveOtherAntenna))
             {
                 //sets ambient to cardholder
                 registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
@@ -258,21 +250,23 @@ namespace TG2_RFID
             /*
 			 * Compare Doppler transition point
 			 */
-            if (!Double.IsNaN(dopplerCurveLastAntenna.CalculateCrossingPoint().Item1) && 
+            if (!Double.IsNaN(dopplerCurveLastAntenna.CalculateCrossingPoint().Item1) &&
                 !Double.IsNaN(dopplerCurveOtherAntenna.CalculateCrossingPoint().Item1) &&
                 dopplerCurveLastAntenna.CalculateCrossingPoint().Item1 > dopplerCurveOtherAntenna.CalculateCrossingPoint().Item1)
             {
                 //sets ambient to cardholder
                 registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
                 cardholder.SetAmbient(transition.GetAmb4GivenAntenna(antennaPersonAt), 5);
-            } else if (!Double.IsNaN(dopplerCurveLastAntenna.CalculateCrossingPoint().Item1) &&
-                !Double.IsNaN(dopplerCurveOtherAntenna.CalculateCrossingPoint().Item1) &&
-                dopplerCurveLastAntenna.CalculateCrossingPoint().Item1 < dopplerCurveOtherAntenna.CalculateCrossingPoint().Item1)
+            }
+            else if (!Double.IsNaN(dopplerCurveLastAntenna.CalculateCrossingPoint().Item1) &&
+              !Double.IsNaN(dopplerCurveOtherAntenna.CalculateCrossingPoint().Item1) &&
+              dopplerCurveLastAntenna.CalculateCrossingPoint().Item1 < dopplerCurveOtherAntenna.CalculateCrossingPoint().Item1)
             {
                 //sets ambient to cardholder
                 registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
                 cardholder.SetAmbient(transition.GetAmb4GivenAntenna(otherAntenna), 5);
-            } else
+            }
+            else
             {
                 //if ((peakListLast.Count > 0 && peakListOther.Count > 0 && (peakListLast[peakListLast.Count - 1].Item1 > peakListOther[peakListOther.Count - 1].Item1))
                 //|| (peakListLast.Count == 0 || peakListOther.Count == 0 && maxLastAntenna.Item1 > maxOtherAntenna.Item1 && maxLastAntenna.Item2 > maxOtherAntenna.Item2))
@@ -297,14 +291,17 @@ namespace TG2_RFID
             if ((peakListLast.Count > 0 && peakListOther.Count > 0 && (peakListLast[peakListLast.Count - 1].Item1 > peakListOther[peakListOther.Count - 1].Item1) &&
                 (!Double.IsNaN(dopplerCurveLastAntenna.CalculateCrossingPoint().Item1) &&
                 !Double.IsNaN(dopplerCurveOtherAntenna.CalculateCrossingPoint().Item1) &&
-                dopplerCurveLastAntenna.CalculateCrossingPoint().Item1 > dopplerCurveOtherAntenna.CalculateCrossingPoint().Item1))
-                 || (peakListLast.Count == 0 || peakListOther.Count == 0 && maxLastAntenna.Item1 > maxOtherAntenna.Item1 && maxLastAntenna.Item2 > maxOtherAntenna.Item2))
+                dopplerCurveLastAntenna.CalculateCrossingPoint().Item1 > dopplerCurveOtherAntenna.CalculateCrossingPoint().Item1)))
+            //|| (peakListLast.Count == 0 || peakListOther.Count == 0 && maxLastAntenna.Item1 > maxOtherAntenna.Item1 && maxLastAntenna.Item2 > maxOtherAntenna.Item2))
             {
                 // sets ambient to cardholder
                 registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
                 cardholder.SetAmbient(transition.GetAmb4GivenAntenna(antennaPersonAt), 6);
             }
-            else
+            else if ((peakListLast.Count > 0 && peakListOther.Count > 0 && (peakListLast[peakListLast.Count - 1].Item1 <= peakListOther[peakListOther.Count - 1].Item1) &&
+                (!Double.IsNaN(dopplerCurveLastAntenna.CalculateCrossingPoint().Item1) &&
+                !Double.IsNaN(dopplerCurveOtherAntenna.CalculateCrossingPoint().Item1) &&
+                dopplerCurveLastAntenna.CalculateCrossingPoint().Item1 <= dopplerCurveOtherAntenna.CalculateCrossingPoint().Item1)))
             {
                 // sets ambient to cardholder
                 registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
@@ -339,6 +336,48 @@ namespace TG2_RFID
             //    registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder cardholder);
             //    cardholder.SetCurrAmbient(transition.GetAmb4GivenAntenna(otherAntenna));
             //}
+
+            person.SetCurrAmbient(Project.GetAmbientInstance(Project.realAmbient));
+        }
+
+        // TODO
+        // Aqui vamos processar a curva já populada!
+        // Processa o cardholder data
+        public static void ProcessCardholderData(Tag tag, string senderName)
+        {
+            //get curves
+            registeredPeople.TryGetValue(tag.Epc.ToString(), out Cardholder person);
+            var antennaPersonAt = Tuple.Create<string, ushort>(senderName, tag.AntennaPortNumber);
+            var transition = Project.GetTransitionInstance(antennaPersonAt);
+
+            var ambient = transition.GetAmb4GivenAntenna(antennaPersonAt);
+
+            Tuple.Create<string, ushort>("Reader #1", 2);
+            Tuple.Create<string, ushort>("Reader #2", 1);
+            Tuple.Create<string, ushort>("Reader #2", 2);
+            Tuple.Create<string, ushort>("Reader #3", 1);
+            Tuple.Create<string, ushort>("Reader #3", 2);
+
+            if (ambient.GetName() == ("Area_Externa(0)") && 
+                transition != Project.GetTransitionInstance(Tuple.Create<string, ushort>("Reader #1", 1)))
+            {
+                return;
+            } 
+            else if (ambient.GetName() == ("Sala_Reuniao(2)") &&
+                transition != Project.GetTransitionInstance(Tuple.Create<string, ushort>("Reader #2", 1)))
+            {
+                return;
+            }
+            else if (ambient.GetName() == ("Corredor_Baias(3)") &&
+                transition != Project.GetTransitionInstance(Tuple.Create<string, ushort>("Reader #3", 2)))
+            {
+                return;
+            }
+            //else if (ambient.GetName() == ("Sala_Principal(1)") 
+
+
+
+            ProcessDataGiveTransition(transition, antennaPersonAt, person, tag, senderName);
         }
 
         /// <summary>

@@ -329,7 +329,7 @@ namespace TG2_RFID
         public double GetCurveIndexX(int i)
         {
             if (curveData.Values.Count() > i)
-                return curveData.Values[i];
+                return curveData.Keys[i];
             else
                 return 0;
         }
@@ -532,6 +532,35 @@ namespace TG2_RFID
             //var elapsedMs = watch.ElapsedMilliseconds;
             //Console.WriteLine("PeaksPoint in ms : {0}", elapsedMs);
             return peaks;
+        }
+
+        public bool CompareCurveMaximums(Curve otherCurve)
+        {
+            return GetCurveMaxPoint().Item2 > otherCurve.GetCurveMaxPoint().Item2;
+        }
+
+        public bool CompareCurveLastValues(Curve otherCurve)
+        {
+            return GetCurveLastValue() > otherCurve.GetCurveLastValue();
+        }
+
+        public bool CompareCurveMeans(Curve otherCurve)
+        {
+            return CalculateMeanY() >= otherCurve.CalculateMeanY();
+        }
+
+        public bool CompareCurveMedians(Curve otherCurve)
+        {
+            return GetMedianY() >= otherCurve.GetMedianY();
+        }
+
+        public bool CompareCurveLastPeak(Curve otherCurve)
+        {
+            var peakListLast = CalculatePeaks();
+            var peakListOther = otherCurve.CalculatePeaks();
+
+            return (peakListLast.Count > 0 && peakListOther.Count > 0 && (peakListLast[peakListLast.Count - 1].Item1 > peakListOther[peakListOther.Count - 1].Item1))
+                    || (peakListLast.Count == 0 || peakListOther.Count == 0 && CompareCurveMaximums(otherCurve));
         }
     }
 }
